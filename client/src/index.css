@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void-black: #0a0a0f;
+  --neon-green: #00ff41;
+  --alert-red: #ff003c;
+  --panel-bg: rgba(0, 0, 0, 0.6);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background-color: var(--void-black);
+    color: var(--neon-green);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+}
+
+.crt-vignette {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.terminal-input {
+  caret-color: var(--neon-green);
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--neon-green);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.terminal-input::placeholder {
+  color: rgba(0, 255, 65, 0.4);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+}
+
+.glow-text-red {
+  text-shadow: 0 0 10px var(--alert-red), 0 0 20px var(--alert-red);
+}
+
+.scrollbar-cyber::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-cyber::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.scrollbar-cyber::-webkit-scrollbar-thumb {
+  background: var(--neon-green);
+  border-radius: 3px;
+}
+
+.scrollbar-cyber::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 65, 0.8);
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  5% { opacity: 0.95; }
+  10% { opacity: 0.97; }
+  15% { opacity: 0.94; }
+  20% { opacity: 0.98; }
+  25% { opacity: 0.96; }
+  30% { opacity: 0.97; }
+  35% { opacity: 0.95; }
+  40% { opacity: 0.98; }
+  45% { opacity: 0.96; }
+  50% { opacity: 0.97; }
+  55% { opacity: 0.95; }
+  60% { opacity: 0.98; }
+  65% { opacity: 0.96; }
+  70% { opacity: 0.97; }
+  75% { opacity: 0.94; }
+  80% { opacity: 0.98; }
+  85% { opacity: 0.96; }
+  90% { opacity: 0.97; }
+  95% { opacity: 0.95; }
+  100% { opacity: 0.98; }
+}
+
+.screen-flicker {
+  animation: flicker 0.3s infinite;
+}
+
+.tab-active {
+  border-bottom: 2px solid var(--neon-green);
+  color: var(--neon-green);
+}
+
+.tab-inactive {
+  border-bottom: 2px solid transparent;
+  color: rgba(0, 255, 65, 0.5);
+}
+
+.tab-inactive:hover {
+  color: rgba(0, 255, 65, 0.8);
+}
