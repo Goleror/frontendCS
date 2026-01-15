@@ -5,6 +5,7 @@ import viteConfig from "../vite.config";
 import fs from "fs";
 import path from "path";
 import { nanoid } from "nanoid";
+import { log } from "./logger";
 
 const viteLogger = createLogger();
 
@@ -21,6 +22,7 @@ export async function setupVite(server: Server, app: Express) {
     customLogger: {
       ...viteLogger,
       error: (msg, options) => {
+        log(`Vite Error: ${msg}`, "frontend");
         viteLogger.error(msg, options);
         process.exit(1);
       },
@@ -33,7 +35,7 @@ export async function setupVite(server: Server, app: Express) {
 
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
-    console.log(`[VITE] Processing request for URL: ${url}`);
+    log(`Processing request for URL: ${url}`, "frontend");
 
     try {
       const clientTemplate = path.resolve(
@@ -43,24 +45,24 @@ export async function setupVite(server: Server, app: Express) {
         "index.html",
       );
       
-      console.log(`[VITE] Loading template from: ${clientTemplate}`);
+      log(`Loading template from: ${clientTemplate}`, "frontend");
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      console.log(`[VITE] Template loaded, size: ${template.length} bytes`);
+      log(`Template loaded, size: ${template.length} bytes`, "frontend");
       
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
       
-      console.log(`[VITE] Transforming HTML...`);
+      log(`Transforming HTML...`, "frontend");
       const page = await vite.transformIndexHtml(url, template);
-      console.log(`[VITE] Transform complete, sending response of ${page.length} bytes`);
+      log(`Transform complete, sending response of ${page.length} bytes`, "frontend");
       
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
-      console.error(`[VITE] Error:`, e);
+      log(`Error: ${e}`, "frontend");
       vite.ssrFixStacktrace(e as Error);
       next(e);
     }

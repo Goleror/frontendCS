@@ -1,0 +1,316 @@
+9:42:07 AM [FRONTEND] Processing request for URL: /
+9:42:07 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:42:07 AM [FRONTEND] Template loaded, size: 656 bytes
+9:42:07 AM [FRONTEND] Transforming HTML...
+9:42:07 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:42:14 AM [FRONTEND] Processing request for URL: /
+9:42:14 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:42:14 AM [FRONTEND] Template loaded, size: 656 bytes
+9:42:14 AM [FRONTEND] Transforming HTML...
+9:42:14 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:46:25 AM [FRONTEND] Vite Error: [31mWebSocket server error: Port is already in use[39m
+9:47:03 AM [FRONTEND] Processing request for URL: /
+9:47:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:47:03 AM [FRONTEND] Template loaded, size: 656 bytes
+9:47:03 AM [FRONTEND] Transforming HTML...
+9:47:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:48:37 AM [FRONTEND] Processing request for URL: /
+9:48:37 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:48:37 AM [FRONTEND] Template loaded, size: 656 bytes
+9:48:37 AM [FRONTEND] Transforming HTML...
+9:48:37 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:48:39 AM [FRONTEND] Processing request for URL: /
+9:48:39 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:48:39 AM [FRONTEND] Template loaded, size: 656 bytes
+9:48:39 AM [FRONTEND] Transforming HTML...
+9:48:39 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:49:41 AM [FRONTEND] Processing request for URL: /
+9:49:41 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:49:41 AM [FRONTEND] Template loaded, size: 656 bytes
+9:49:41 AM [FRONTEND] Transforming HTML...
+9:49:41 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:49:42 AM [FRONTEND] Processing request for URL: /
+9:49:42 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:49:42 AM [FRONTEND] Template loaded, size: 656 bytes
+9:49:42 AM [FRONTEND] Transforming HTML...
+9:49:42 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+9:52:46 AM [FRONTEND] Processing request for URL: /
+9:52:46 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+9:52:46 AM [FRONTEND] Template loaded, size: 656 bytes
+9:52:46 AM [FRONTEND] Transforming HTML...
+9:52:46 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:06:08 AM [FRONTEND] Processing request for URL: /
+10:06:08 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:06:08 AM [FRONTEND] Template loaded, size: 656 bytes
+10:06:08 AM [FRONTEND] Transforming HTML...
+10:06:08 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:03 AM [FRONTEND] Processing request for URL: /
+10:07:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:03 AM [FRONTEND] Transforming HTML...
+10:07:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:03 AM [FRONTEND] Processing request for URL: /
+10:07:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:03 AM [FRONTEND] Transforming HTML...
+10:07:03 AM [FRONTEND] Processing request for URL: /
+10:07:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:03 AM [FRONTEND] Transforming HTML...
+10:07:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:04 AM [FRONTEND] Processing request for URL: /
+10:07:04 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:04 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:04 AM [FRONTEND] Transforming HTML...
+10:07:04 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:06 AM [FRONTEND] Processing request for URL: /
+10:07:06 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:06 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:06 AM [FRONTEND] Transforming HTML...
+10:07:06 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:06 AM [FRONTEND] Processing request for URL: /
+10:07:06 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:06 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:06 AM [FRONTEND] Transforming HTML...
+10:07:06 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:27 AM [FRONTEND] Processing request for URL: /
+10:07:27 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:27 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:27 AM [FRONTEND] Transforming HTML...
+10:07:27 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:30 AM [FRONTEND] Processing request for URL: /
+10:07:30 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:30 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:30 AM [FRONTEND] Transforming HTML...
+10:07:30 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:07:36 AM [FRONTEND] Processing request for URL: /
+10:07:36 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:07:36 AM [FRONTEND] Template loaded, size: 656 bytes
+10:07:36 AM [FRONTEND] Transforming HTML...
+10:07:36 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:08:30 AM [FRONTEND] Processing request for URL: /
+10:08:30 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:08:30 AM [FRONTEND] Template loaded, size: 656 bytes
+10:08:30 AM [FRONTEND] Transforming HTML...
+10:08:30 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:08:47 AM [FRONTEND] Processing request for URL: /
+10:08:47 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:08:47 AM [FRONTEND] Template loaded, size: 656 bytes
+10:08:47 AM [FRONTEND] Transforming HTML...
+10:08:47 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:09:04 AM [FRONTEND] Processing request for URL: /
+10:09:04 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:09:04 AM [FRONTEND] Template loaded, size: 656 bytes
+10:09:04 AM [FRONTEND] Transforming HTML...
+10:09:04 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:09:07 AM [FRONTEND] Processing request for URL: /
+10:09:07 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:09:07 AM [FRONTEND] Template loaded, size: 656 bytes
+10:09:07 AM [FRONTEND] Transforming HTML...
+10:09:07 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:10:19 AM [FRONTEND] Processing request for URL: /
+10:10:19 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:10:19 AM [FRONTEND] Template loaded, size: 656 bytes
+10:10:19 AM [FRONTEND] Transforming HTML...
+10:10:19 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:10:29 AM [FRONTEND] Processing request for URL: /
+10:10:29 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:10:29 AM [FRONTEND] Template loaded, size: 656 bytes
+10:10:29 AM [FRONTEND] Transforming HTML...
+10:10:29 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:11:04 AM [FRONTEND] Processing request for URL: /
+10:11:04 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:11:04 AM [FRONTEND] Template loaded, size: 656 bytes
+10:11:04 AM [FRONTEND] Transforming HTML...
+10:11:04 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:11:46 AM [FRONTEND] Processing request for URL: /
+10:11:46 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:11:46 AM [FRONTEND] Template loaded, size: 656 bytes
+10:11:46 AM [FRONTEND] Transforming HTML...
+10:11:46 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:12:00 AM [FRONTEND] Processing request for URL: /
+10:12:00 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:12:00 AM [FRONTEND] Template loaded, size: 656 bytes
+10:12:00 AM [FRONTEND] Transforming HTML...
+10:12:00 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:13:03 AM [FRONTEND] Processing request for URL: /
+10:13:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:13:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:13:03 AM [FRONTEND] Transforming HTML...
+10:13:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:16:30 AM [FRONTEND] Processing request for URL: /
+10:16:30 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:16:30 AM [FRONTEND] Template loaded, size: 656 bytes
+10:16:30 AM [FRONTEND] Transforming HTML...
+10:16:30 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:17:02 AM [FRONTEND] Processing request for URL: /
+10:17:02 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:17:02 AM [FRONTEND] Template loaded, size: 656 bytes
+10:17:02 AM [FRONTEND] Transforming HTML...
+10:17:02 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:17:44 AM [FRONTEND] Processing request for URL: /
+10:17:44 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:17:44 AM [FRONTEND] Template loaded, size: 656 bytes
+10:17:44 AM [FRONTEND] Transforming HTML...
+10:17:44 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:18:56 AM [FRONTEND] Processing request for URL: /
+10:18:56 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:18:56 AM [FRONTEND] Template loaded, size: 656 bytes
+10:18:56 AM [FRONTEND] Transforming HTML...
+10:18:56 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:19:20 AM [FRONTEND] Processing request for URL: /
+10:19:20 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:19:20 AM [FRONTEND] Template loaded, size: 656 bytes
+10:19:20 AM [FRONTEND] Transforming HTML...
+10:19:20 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:20:35 AM [FRONTEND] Processing request for URL: /
+10:20:35 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:20:35 AM [FRONTEND] Template loaded, size: 656 bytes
+10:20:35 AM [FRONTEND] Transforming HTML...
+10:20:35 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:22:34 AM [FRONTEND] Processing request for URL: /
+10:22:34 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:22:34 AM [FRONTEND] Template loaded, size: 656 bytes
+10:22:34 AM [FRONTEND] Transforming HTML...
+10:22:34 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:23:03 AM [FRONTEND] Processing request for URL: /
+10:23:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:23:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:23:03 AM [FRONTEND] Transforming HTML...
+10:23:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:24:09 AM [FRONTEND] Processing request for URL: /favicon.ico
+10:24:09 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:24:09 AM [FRONTEND] Template loaded, size: 656 bytes
+10:24:09 AM [FRONTEND] Transforming HTML...
+10:24:09 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:24:09 AM [FRONTEND] Processing request for URL: /favicon.ico
+10:24:09 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:24:09 AM [FRONTEND] Template loaded, size: 656 bytes
+10:24:09 AM [FRONTEND] Transforming HTML...
+10:24:09 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:24:27 AM [FRONTEND] Processing request for URL: /
+10:24:27 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:24:27 AM [FRONTEND] Template loaded, size: 656 bytes
+10:24:27 AM [FRONTEND] Transforming HTML...
+10:24:27 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:24:43 AM [FRONTEND] Processing request for URL: /
+10:24:43 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:24:43 AM [FRONTEND] Template loaded, size: 656 bytes
+10:24:43 AM [FRONTEND] Transforming HTML...
+10:24:43 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:25:13 AM [FRONTEND] Processing request for URL: /
+10:25:13 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:25:13 AM [FRONTEND] Template loaded, size: 656 bytes
+10:25:13 AM [FRONTEND] Transforming HTML...
+10:25:13 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:26:04 AM [FRONTEND] Processing request for URL: /
+10:26:04 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:26:04 AM [FRONTEND] Template loaded, size: 656 bytes
+10:26:04 AM [FRONTEND] Transforming HTML...
+10:26:04 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:26:07 AM [FRONTEND] Processing request for URL: /
+10:26:07 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:26:07 AM [FRONTEND] Template loaded, size: 656 bytes
+10:26:07 AM [FRONTEND] Transforming HTML...
+10:26:07 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:27:20 AM [FRONTEND] Processing request for URL: /
+10:27:20 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:27:20 AM [FRONTEND] Template loaded, size: 656 bytes
+10:27:20 AM [FRONTEND] Transforming HTML...
+10:27:20 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:27:36 AM [FRONTEND] Processing request for URL: /
+10:27:36 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:27:36 AM [FRONTEND] Template loaded, size: 656 bytes
+10:27:36 AM [FRONTEND] Transforming HTML...
+10:27:36 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:30:16 AM [FRONTEND] Processing request for URL: /
+10:30:16 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:30:16 AM [FRONTEND] Template loaded, size: 656 bytes
+10:30:16 AM [FRONTEND] Transforming HTML...
+10:30:16 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:32:12 AM [FRONTEND] Processing request for URL: /
+10:32:12 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:32:12 AM [FRONTEND] Template loaded, size: 656 bytes
+10:32:12 AM [FRONTEND] Transforming HTML...
+10:32:12 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:32:28 AM [FRONTEND] Processing request for URL: /
+10:32:28 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:32:28 AM [FRONTEND] Template loaded, size: 656 bytes
+10:32:28 AM [FRONTEND] Transforming HTML...
+10:32:28 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:33:59 AM [FRONTEND] Processing request for URL: /
+10:33:59 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:33:59 AM [FRONTEND] Template loaded, size: 656 bytes
+10:33:59 AM [FRONTEND] Transforming HTML...
+10:33:59 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:33:59 AM [FRONTEND] Processing request for URL: /
+10:33:59 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:33:59 AM [FRONTEND] Processing request for URL: /
+10:33:59 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:33:59 AM [FRONTEND] Template loaded, size: 656 bytes
+10:33:59 AM [FRONTEND] Transforming HTML...
+10:33:59 AM [FRONTEND] Template loaded, size: 656 bytes
+10:33:59 AM [FRONTEND] Transforming HTML...
+10:33:59 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:33:59 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:33:59 AM [FRONTEND] Processing request for URL: /
+10:33:59 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:33:59 AM [FRONTEND] Template loaded, size: 656 bytes
+10:33:59 AM [FRONTEND] Transforming HTML...
+10:33:59 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:33:59 AM [FRONTEND] Processing request for URL: /
+10:33:59 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:33:59 AM [FRONTEND] Template loaded, size: 656 bytes
+10:33:59 AM [FRONTEND] Transforming HTML...
+10:33:59 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:00 AM [FRONTEND] Processing request for URL: /
+10:34:00 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:00 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:00 AM [FRONTEND] Transforming HTML...
+10:34:00 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:01 AM [FRONTEND] Processing request for URL: /
+10:34:01 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:01 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:01 AM [FRONTEND] Transforming HTML...
+10:34:01 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:02 AM [FRONTEND] Processing request for URL: /
+10:34:02 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:02 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:02 AM [FRONTEND] Transforming HTML...
+10:34:02 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:03 AM [FRONTEND] Processing request for URL: /
+10:34:03 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:03 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:03 AM [FRONTEND] Transforming HTML...
+10:34:03 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:04 AM [FRONTEND] Processing request for URL: /
+10:34:04 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:04 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:04 AM [FRONTEND] Transforming HTML...
+10:34:04 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:34:12 AM [FRONTEND] Processing request for URL: /
+10:34:12 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:34:12 AM [FRONTEND] Template loaded, size: 656 bytes
+10:34:12 AM [FRONTEND] Transforming HTML...
+10:34:12 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:35:30 AM [FRONTEND] Processing request for URL: /
+10:35:30 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:35:30 AM [FRONTEND] Template loaded, size: 656 bytes
+10:35:30 AM [FRONTEND] Transforming HTML...
+10:35:30 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:36:28 AM [FRONTEND] Processing request for URL: /
+10:36:28 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:36:28 AM [FRONTEND] Template loaded, size: 656 bytes
+10:36:28 AM [FRONTEND] Transforming HTML...
+10:36:28 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:38:30 AM [FRONTEND] Processing request for URL: /
+10:38:30 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:38:30 AM [FRONTEND] Template loaded, size: 656 bytes
+10:38:30 AM [FRONTEND] Transforming HTML...
+10:38:30 AM [FRONTEND] Transform complete, sending response of 1303 bytes
+10:55:17 AM [FRONTEND] Processing request for URL: /
+10:55:17 AM [FRONTEND] Loading template from: /home/onevochka/Рабочий стол/проектик/newarchCS/client/index.html
+10:55:17 AM [FRONTEND] Template loaded, size: 656 bytes
+10:55:17 AM [FRONTEND] Transforming HTML...
+10:55:17 AM [FRONTEND] Transform complete, sending response of 1303 bytes

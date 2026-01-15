@@ -6,6 +6,8 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { initializeDatabase } from "./db";
+import os from "os";
+import { log } from "./logger";
 
 const app = express();
 const httpServer = createServer(app);
@@ -72,15 +74,21 @@ app.use(session({
   }
 }));
 
-export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
+function getLocalIPs(): string[] {
+  const interfaces = os.networkInterfaces();
+  const ips: string[] = [];
 
-  console.log(`${formattedTime} [${source}] ${message}`);
+  for (const [, addrs] of Object.entries(interfaces)) {
+    if (addrs) {
+      for (const addr of addrs) {
+        if (addr.family === "IPv4" && !addr.internal) {
+          ips.push(addr.address);
+        }
+      }
+    }
+  }
+
+  return ips;
 }
 
 app.use((req, res, next) => {
@@ -145,6 +153,19 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+      log(`🎮 Фронтенд и Бекенд запущены на одном сервере`);
+      log(`📍 Доступ через localhost:`);
+      log(`   [BACKEND] http://localhost:${port} (API)`);
+      log(`   [FRONTEND] http://localhost:${port} (Web UI)`);
+      
+      const localIPs = getLocalIPs();
+      if (localIPs.length > 0) {
+        log(`📍 Доступ через локальную сеть:`);
+        localIPs.forEach(ip => {
+          log(`   [BACKEND] http://${ip}:${port} (API)`);
+          log(`   [FRONTEND] http://${ip}:${port} (Web UI)`);
+        });
+      }
     },
   );
 })();
