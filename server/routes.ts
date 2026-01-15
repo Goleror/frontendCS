@@ -57,7 +57,7 @@ export async function registerRoutes(
       try {
         const parsed = insertUserSchema.safeParse(req.body);
         if (!parsed.success) {
-          res.status(400).json({ error: "Invalid request body" });
+          res.status(400).json({ error: "Некорректные данные запроса" });
           return;
         }
 
@@ -66,14 +66,14 @@ export async function registerRoutes(
         // Additional security check: prevent common usernames
         const blockedUsernames = ['admin', 'root', 'system', 'test', 'guest'];
         if (blockedUsernames.includes(username.toLowerCase())) {
-          res.status(400).json({ error: 'This username is not available' });
+          res.status(400).json({ error: 'Это имя пользователя недоступно' });
           return;
         }
 
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
-        res.status(409).json({ error: "User already exists" });
+        res.status(409).json({ error: "Пользователь с таким именем уже существует" });
         return;
       }
 
@@ -100,7 +100,7 @@ export async function registerRoutes(
       res.status(201).json({ id: user.id, username: user.username });
     } catch (error) {
       console.error("Error registering user:", error);
-      res.status(500).json({ error: "Failed to register" });
+      res.status(500).json({ error: "Ошибка при регистрации: не удалось создать аккаунт" });
     }
   });
 

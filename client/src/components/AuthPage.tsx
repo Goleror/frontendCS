@@ -65,9 +65,8 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
       if (response.ok) {
         const user = await response.json();
         setSuccess(`${isLogin ? 'Вход' : 'Регистрация'} успешен!`);
-        setTimeout(() => {
-          onAuthSuccess(user.username);
-        }, 500);
+        // Сразу переходим в аккаунт, без задержки
+        onAuthSuccess(user.username);
       } else {
         const data = await response.json();
         setError(data.error || 'Ошибка аутентификации');
