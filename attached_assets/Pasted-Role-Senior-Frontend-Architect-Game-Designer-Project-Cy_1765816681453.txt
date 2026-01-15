@@ -1,0 +1,77 @@
+Role: Senior Frontend Architect & Game Designer.
+Project: "CyberShield: Zero Day" - Immersive Cybersec Simulator.
+
+CONSTRAINT: ONE-SHOT BUILD. NO PLACEHOLDERS.
+The app must be a "Full Screen Desktop Application".
+**CRITICAL UX RULE:** The main page body must NOT scroll. Only internal containers (Terminal logs, Email list, Wiki text) should scroll. Use `h-screen w-screen overflow-hidden` layout.
+
+### 1. VISUAL STYLE & LAYOUT
+- **Theme:** High-End Cyberpunk / SOC Dashboard.
+- **Colors:** Deep Void Black (`#0a0a0f`), Neon Green (`#00ff41`), Alert Red (`#ff003c`).
+- **Effects:**
+  - **CRT Overlay:** Scanlines and slight curvature vignette.
+  - **Glassmorphism:** Panels should have `backdrop-blur-xl`, `bg-black/60`, `border-white/10`.
+  - **Typography:** 'JetBrains Mono' or 'Fira Code' (Monospace).
+- **Structure:**
+  - **Main Container:** Fixed 100vh/100vw grid.
+  - **Left Panel (65%):** The Terminal Window (The workspace).
+  - **Right Panel (35%):** The "CyberDeck" (Tabs: Missions, Mail, Wiki).
+
+### 2. CORE GAME ENGINE (Logic)
+Create a `useGameEngine` hook managing:
+1.  **FileSystem:** Nested JSON objects. Files have `content` and `permissions` (e.g., "r" or "rw").
+2.  **Processes:** Array `{pid, name, cpu, user, protected}`. (Added 'protected' flag).
+3.  **Command Parser:**
+    - `ls`, `cd`, `pwd`, `clear`, `help`
+    - `cat [file]`, `rm [file]`, `touch [file]`, `echo [text] > [file]`
+    - `ps`, `kill [pid]`
+    - `grep [string] [file]` (Search text in file)
+    - `chmod +w [file]` (Unlock file for deletion - CRITICAL)
+    - `submit_report [text]`
+
+**Logic Rules for Hardcore Mode:**
+- If user tries `kill [pid]` on a `protected: true` process, return Error: "PROTECTED_PROCESS: Daemon active. Deactivation key required in /etc/killswitch".
+- If user tries `rm [file]` where permissions are "r" (read-only), return Error: "PERMISSION DENIED. File is read-only."
+- User must run `chmod +w [file]` to change permissions to "rw" before deleting.
+
+### 3. WIKI DATA
+**Hardcode this Knowledge Base:**
+```javascript
+const WIKI_ENTRIES = [
+  { id: 1, term: "DDoS", desc: "Перегрузка сервера запросами." },
+  { id: 2, term: "Rootkit", desc: "ПО, скрывающее свое присутствие и защищающее вредоносные процессы от удаления." },
+  { id: 3, term: "chmod", desc: "Команда смены прав доступа. 'chmod +w файл' разрешает запись и удаление." },
+  { id: 4, term: "grep", desc: "Поиск текста внутри файлов. Пример: grep 'password' file.txt" },
+  { id: 5, term: "Kill Switch", desc: "Механизм аварийного отключения программы." }
+];
+4. CAMPAIGN MISSIONS (Russian Content)
+Levels:
+Tutorial: Kill process 'miner_x' (PID 666).
+Cleanup: Remove '/home/user/downloads/keylogger.exe'.
+Forensics: Find attacker IP in '/var/log/auth.log' (Grep for 'Failed'). Report via submit_report [IP].
+Log content: "Dec 12 10:00 sshd: Failed password from 45.33.22.11"
+Decryption: Find password in 'dump.txt' (Format: PASS:XXXX) and save to 'flag.txt'.
+BOSS: ROOTKIT "NEMESIS" (Hardcore):
+Narrative: "Внимание! Обнаружен Руткит 'Nemesis'. Процесс (PID 999) защищен демоном, а файл вируса заблокирован от удаления.
+Instructions:
+Найди 'KILL_CODE' в файле /var/log/syslog (используй grep).
+Запиши этот код в файл /etc/killswitch (используй echo), чтобы снять защиту с процесса.
+Убей процесс (PID 999).
+Разблокируй файл вируса /bin/nemesis (используй chmod +w).
+Удали файл.
+Win Condition: PID 999 dead AND /bin/nemesis deleted.
+5. INITIAL STATE
+Files:
+/home/user/downloads/keylogger.exe: content="BIN", perms="rw"
+/var/log/auth.log: "... Failed password from 45.33.22.11 ...", perms="r"
+/var/log/syslog: "... error ... kernel_panic ... KILL_CODE:X7-ALPHA ... error ...", perms="r"
+/bin/nemesis: content="VIRUS_BODY", perms="r" (READ ONLY! Needs chmod)
+Processes:
+666: miner_x (protected: false)
+999: nemesis_d (protected: true - needs /etc/killswitch with "X7-ALPHA" to die)
+6. EXECUTION INSTRUCTIONS
+Setup React + Tailwind + Lucide Icons.
+Layout: h-screen w-screen overflow-hidden bg-black text-green-400 font-mono.
+Logic: Implement the logic exactly as described in "Logic Rules".
+kill command must check for protected flag and existence of /etc/killswitch with correct content.
+rm command must check for file permissions.
