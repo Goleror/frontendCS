@@ -9,6 +9,9 @@ import { MultiplayerLobby } from './components/MultiplayerLobby';
 import { useMissionSound } from './hooks/useMissionSound';
 import { useAchievementTracker } from './hooks/useAchievementTracker';
 import { useGameEngine } from './hooks/useGameEngine';
+import { useProgressSync } from './hooks/useProgressSync';
+import { useAutoSaveProgress } from './hooks/useAutoSaveProgress';
+import { useProgressSync } from './hooks/useProgressSync';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -87,8 +90,16 @@ function GameApp({ username, onLogout }: GameAppProps) {
   useMissionSound();
   const { newAchievement, clearNewAchievement } = useAchievementTracker();
   const { gameCompleted, getGameStats } = useGameEngine();
+  const { loadProgress } = useProgressSync();
+  useAutoSaveProgress(); // Автоматическое сохранение прогресса
   const [showVictory, setShowVictory] = useState(false);
   const [gameStats, setGameStats] = useState({ completionTimeMs: 0, commandCount: 0, errorCount: 0 });
+
+  // Загружаем прогресс при входе в игру
+  useEffect(() => {
+    console.log('[App] Loading player progress for', username);
+    loadProgress();
+  }, [username, loadProgress]);
 
   useEffect(() => {
     if (gameCompleted && !showVictory) {
@@ -192,7 +203,11 @@ function GameApp({ username, onLogout }: GameAppProps) {
       <VictoryModal
         isOpen={showVictory}
         onClose={() => setShowVictory(false)}
-        onSubmit={() => {}}
+        onSubmit={() => {
+          // Сохраняем прогресс на сервер при завершении игры
+          loadProgress();
+          setShowVictory(false);
+        }}
         completionTimeMs={gameStats.completionTimeMs}
         commandCount={gameStats.commandCount}
         errorCount={gameStats.errorCount}

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface ProceduralMission {
   id: string;
@@ -120,9 +119,8 @@ function generateMultiStep(id: string): ProceduralMission {
   };
 }
 
-export const useProceduralMissions = create<ProceduralMissionState>()(
-  persist(
-    (set, get) => ({
+export const useProceduralMissions = create<ProceduralMissionState>(
+  (set, get) => ({
       missions: [],
       currentMission: null,
       completedCount: 0,
@@ -173,9 +171,5 @@ export const useProceduralMissions = create<ProceduralMissionState>()(
           completedCount: 0
         });
       }
-    }),
-    {
-      name: 'cybershield-procedural-missions'
-    }
-  )
+    })
 );

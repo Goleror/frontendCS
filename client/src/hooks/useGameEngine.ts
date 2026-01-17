@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface FileNode {
   type: 'file' | 'directory';
@@ -51,6 +50,8 @@ interface GameState {
   checkMissionCompletion: () => void;
   setCurrentMission: (missionId: number) => void;
   getGameStats: () => { completionTimeMs: number; commandCount: number; errorCount: number };
+  applyCompletedMissions: (count: number) => void;
+  applyCommandStats: (commands: number, errors: number) => void;
 }
 
 const INITIAL_FILESYSTEM: Record<string, FileNode> = {
@@ -381,8 +382,7 @@ function normalizePath(path: string): string {
 }
 
 export const useGameEngine = create<GameState>(
-  persist(
-    (set, get) => ({
+  (set, get) => ({
       fileSystem: deepClone(INITIAL_FILESYSTEM),
       currentPath: '/home/user',
       processes: deepClone(INITIAL_PROCESSES),
@@ -960,18 +960,32 @@ export const useGameEngine = create<GameState>(
         state.addTerminalLine('error', `${cmd}: команда не найдена. Введите "help" для справки.`);
       }
     }
+  },
+
+  applyCompletedMissions: (count: number) => {
+    set((state) => {
+      const completedMissions = state.missions.map((m, idx) => {
+        if (idx < count) {
+          return { ...m, completed: true, active: idx === count ? true : false };
+        }
+        if (idx === count) {
+          return { ...m, active: true };
+        }
+        return m;
+      });
+      
+      return {
+        missions: completedMissions,
+        currentMission: Math.min(count + 1, 10)
+      };
+    });
+  },
+
+  applyCommandStats: (commands: number, errors: number) => {
+    set({
+      commandCount: commands,
+      errorCount: errors
+    });
   }
-    }),
-    {
-      name: 'game-engine-storage',
-      partialize: (state) => ({
-        missions: state.missions,
-        currentMission: state.currentMission,
-        gameCompleted: state.gameCompleted,
-        commandCount: state.commandCount,
-        errorCount: state.errorCount,
-        gameStartTime: state.gameStartTime,
-      }),
-    }
-  )
+    })
 );

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface Achievement {
   id: string;
@@ -21,6 +20,7 @@ interface AchievementState {
   incrementError: () => void;
   checkAchievements: (missionId: number, allMissionsComplete: boolean) => Achievement[];
   resetProgress: () => void;
+  applyUnlockedAchievements: (achievementIds: string[]) => void;
 }
 
 const INITIAL_ACHIEVEMENTS: Achievement[] = [
@@ -110,9 +110,8 @@ const INITIAL_ACHIEVEMENTS: Achievement[] = [
   }
 ];
 
-export const useAchievements = create<AchievementState>()(
-  persist(
-    (set, get) => ({
+export const useAchievements = create<AchievementState>(
+  (set, get) => ({
       achievements: INITIAL_ACHIEVEMENTS.map(a => ({ ...a })),
       gameStartTime: null,
       commandCount: 0,
@@ -220,11 +219,16 @@ export const useAchievements = create<AchievementState>()(
           commandCount: 0,
           errorCount: 0
         });
+      },
+
+      applyUnlockedAchievements: (achievementIds: string[]) => {
+        set((state) => ({
+          achievements: state.achievements.map(a => 
+            achievementIds.includes(a.id)
+              ? { ...a, unlocked: true, unlockedAt: Date.now() }
+              : a
+          )
+        }));
       }
-    }),
-    {
-      name: 'cybershield-achievements',
-      partialize: (state) => ({ achievements: state.achievements })
-    }
-  )
+    })
 );

@@ -336,6 +336,57 @@ export async function registerRoutes(app: Express): Promise<void> {
     }
   });
 
+  /**
+   * POST /api/progress/achievement
+   * Разблокировать достижение
+   */
+  app.post(
+    "/api/progress/achievement",
+    requireAuth,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = req.userId!;
+        const { achievementId } = req.body;
+
+        if (!achievementId) {
+          res.status(400).json({ error: "Achievement ID required" });
+          return;
+        }
+
+        // Получаем текущий прогресс
+        let progress = await storage.getUserProgress(userId);
+        if (!progress) {
+          progress = await storage.initializeUserProgress(userId);
+        }
+
+        // Парсим текущие достижения
+        let unlockedIds: string[] = [];
+        try {
+          const parsed = JSON.parse(progress.unlocked_achievements || "[]");
+          unlockedIds = Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          unlockedIds = [];
+        }
+
+        // Добавляем новое достижение если его еще нет
+        if (!unlockedIds.includes(achievementId)) {
+          unlockedIds.push(achievementId);
+        }
+
+        // Обновляем прогресс
+        const updatedProgress = await storage.updateUserProgress(userId, {
+          unlocked_achievements: JSON.stringify(unlockedIds),
+          last_played_at: new Date().toISOString(),
+        });
+
+        res.json({ success: true, progress: updatedProgress });
+      } catch (error) {
+        console.error("[routes] Achievement unlock error:", error);
+        res.status(500).json({ error: "Failed to unlock achievement" });
+      }
+    }
+  );
+
   // ============================================================================
   // API Leaderboard
   // ============================================================================
