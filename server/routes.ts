@@ -75,6 +75,12 @@ export async function registerRoutes(app: Express): Promise<void> {
       body("password")
         .isLength({ min: 8 })
         .withMessage("Password must be at least 8 characters"),
+      body("role")
+        .isIn(["student", "teacher"])
+        .withMessage("Role must be 'student' or 'teacher'"),
+      body("classCode")
+        .if(() => false) // Условная валидация ниже
+        .trim(),
     ],
     async (req: Request, res: Response) => {
       try {
@@ -85,7 +91,18 @@ export async function registerRoutes(app: Express): Promise<void> {
           return;
         }
 
-        const { username, password } = req.body;
+        const { username, password, role, classCode } = req.body;
+
+        // Валидация в зависимости от роли
+        if (role === "student" && !classCode) {
+          res.status(400).json({ error: "Class code is required for students" });
+          return;
+        }
+
+        if (role === "student" && classCode.length !== 5) {
+          res.status(400).json({ error: "Class code must be 5 characters" });
+          return;
+        }
 
         // Проверяем, занят ли username
         const existingUser = await storage.getUser(username);
@@ -94,17 +111,51 @@ export async function registerRoutes(app: Express): Promise<void> {
           return;
         }
 
+        // Если студент - проверяем, существует ли класс с таким кодом
+        if (role === "student") {
+          const classRecord = await storage.getClassByCode(classCode);
+          if (!classRecord) {
+            res.status(404).json({ error: "Class with this code not found" });
+            return;
+          }
+        }
+
         // Хешируем пароль
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Генерируем код класса для учителя
+        let generatedClassCode = undefined;
+        if (role === "teacher") {
+          generatedClassCode = Math.floor(10000 + Math.random() * 90000).toString();
+        }
 
         // Создаем пользователя
         const user = await storage.createUser({
           username,
           password_hash: hashedPassword,
+          role,
+          class_code: classCode || generatedClassCode,
         });
 
         // Инициализируем прогресс пользователя
         await storage.initializeUserProgress(user.id);
+
+        // Если учитель - создаем класс
+        if (role === "teacher" && generatedClassCode) {
+          await storage.createClass({
+            teacher_id: user.id,
+            class_code: generatedClassCode,
+            class_name: `${username}'s Class`,
+          });
+        }
+
+        // Если студент - добавляем его в класс
+        if (role === "student") {
+          const classRecord = await storage.getClassByCode(classCode);
+          if (classRecord) {
+            await storage.addStudentToClass(user.id, classRecord.id);
+          }
+        }
 
         // Сохраняем userId в session
         (req.session as any).userId = user.id;
@@ -113,6 +164,8 @@ export async function registerRoutes(app: Express): Promise<void> {
         res.status(201).json({
           id: user.id,
           username: user.username,
+          role: user.role,
+          class_code: user.class_code,
         });
       } catch (error) {
         console.error("[routes] Register error:", error);
@@ -166,6 +219,8 @@ export async function registerRoutes(app: Express): Promise<void> {
         res.json({
           id: user.id,
           username: user.username,
+          role: user.role,
+          class_code: user.class_code,
         });
       } catch (error) {
         console.error("[routes] Login error:", error);
@@ -189,22 +244,59 @@ export async function registerRoutes(app: Express): Promise<void> {
   });
 
   /**
+   * GET /api/auth/me
+   * Получить текущего пользователя (alias для /api/auth/user)
+   */
+  app.get("/api/auth/me", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const user = await storage.getUserById(userId);
+
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+
+      const progress = await storage.getUserProgress(userId);
+
+      res.json({
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        class_code: user.class_code,
+        progress,
+      });
+    } catch (error) {
+      console.error("[routes] Get user error:", error);
+      res.status(500).json({ error: "Failed to get user" });
+    }
+  });
+
+  /**
    * GET /api/auth/user
    * Получить текущего пользователя
    */
   app.get("/api/auth/user", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.userId!;
+      const user = await storage.getUserById(userId);
+
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
 
       // Получаем прогресс пользователя для дополнительной информации
       const progress = await storage.getUserProgress(userId);
 
-      // В реальном приложении нужна функция для получения пользователя по ID
-      // Для простоты просто возвращаем userId
       res.json({
-        id: userId,
+        id: user.id,
+        username: user.username,
+        role: user.role,
+        class_code: user.class_code,
         progress,
       });
+
     } catch (error) {
       console.error("[routes] Get user error:", error);
       res.status(500).json({ error: "Failed to get user" });

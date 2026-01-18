@@ -1,0 +1,64 @@
+
+> rest-express@1.0.0 start
+> cross-env NODE_ENV=production node dist/index.cjs
+
+[db] Database connection initialized
+[routes] All routes registered successfully
+[static] Found frontend at: /home/onevochka/Рабочий стол/project/newarchCS/dist
+
+[20:21:19] [EXPRESS] serving on port 5000
+[20:21:19] [EXPRESS] 🎮 Фронтенд и Бекенд запущены на одном сервере
+[20:21:19] [EXPRESS] 📍 Доступ через localhost:
+[20:21:19] [EXPRESS]    [BACKEND] http://localhost:5000 (API)
+[20:21:19] [EXPRESS]    [FRONTEND] http://localhost:5000 (Web UI)
+[20:21:19] [EXPRESS] 📍 Доступ через локальную сеть:
+[20:21:19] [EXPRESS]    [BACKEND] http://192.168.2.174:5000 (API)
+[20:21:19] [EXPRESS]    [FRONTEND] http://192.168.2.174:5000 (Web UI)
+[20:21:19] [EXPRESS]    [BACKEND] http://172.18.0.1:5000 (API)
+[20:21:19] [EXPRESS]    [FRONTEND] http://172.18.0.1:5000 (Web UI)
+[20:21:26] PUT /api/progress 401 5ms
+[20:21:32] PUT /api/progress 401 1ms
+[20:21:56] PUT /api/progress 401 2ms
+[20:22:26] PUT /api/progress 401 1ms
+[20:22:32] PUT /api/progress 401 1ms
+[20:22:56] PUT /api/progress 401 1ms
+[20:23:26] PUT /api/progress 401 1ms
+[20:23:32] PUT /api/progress 401 0ms
+[20:23:56] PUT /api/progress 401 2ms
+[20:24:26] PUT /api/progress 401 1ms
+[20:24:32] PUT /api/progress 401 0ms
+[20:24:56] PUT /api/progress 401 0ms
+[20:25:26] PUT /api/progress 401 1ms
+[20:25:32] PUT /api/progress 401 2ms
+[20:25:56] PUT /api/progress 401 1ms
+[storage] Error getting user: SqliteError: no such column: "role" - should this be a string literal in single-quotes?
+    at Database.prepare (/home/onevochka/Рабочий стол/project/newarchCS/node_modules/better-sqlite3/lib/methods/wrappers.js:5:21)
+    at Xs.prepareQuery (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:19184)
+    at Xs.prepareOneTimeQuery (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:18048)
+    at Ms._prepare (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5174)
+    at Ms.all (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5359)
+    at Ms.execute (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5471)
+    at Ms.then (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:69:29605)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'SQLITE_ERROR'
+}
+[routes] Register error: SqliteError: no such column: "role" - should this be a string literal in single-quotes?
+    at Database.prepare (/home/onevochka/Рабочий стол/project/newarchCS/node_modules/better-sqlite3/lib/methods/wrappers.js:5:21)
+    at Xs.prepareQuery (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:19184)
+    at Xs.prepareOneTimeQuery (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:18048)
+    at Ms._prepare (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5174)
+    at Ms.all (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5359)
+    at Ms.execute (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:81:5471)
+    at Ms.then (/home/onevochka/Рабочий стол/project/newarchCS/dist/index.cjs:69:29605)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'SQLITE_ERROR'
+}
+[20:26:13] POST /api/auth/register 500 15ms
+[20:26:26] PUT /api/progress 401 1ms
+[20:26:28] GET / 200 7ms
+[20:26:32] PUT /api/progress 401 0ms
+[20:26:32] GET / 200 2ms
+[20:26:32] GET /assets/index-DUnt2gcd.js 200 4ms
+[20:26:32] GET /assets/index-D4j7Nngn.css 200 2ms
+[20:26:32] GET /api/auth/me 401 1ms
+[20:26:32] GET /api/auth/me 401 1ms

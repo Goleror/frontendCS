@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { users, userProgress, leaderboard } from "../shared/schema";
+import { users, userProgress, leaderboard, classes, classStudents } from "../shared/schema";
 import type {
   User,
   InsertUser,
@@ -7,6 +7,10 @@ import type {
   InsertUserProgress,
   Leaderboard,
   InsertLeaderboard,
+  Class,
+  InsertClass,
+  ClassStudent,
+  InsertClassStudent,
 } from "../shared/schema";
 import { eq } from "drizzle-orm";
 
@@ -18,6 +22,11 @@ export interface IStorage {
    * Получить пользователя по username
    */
   getUser(username: string): Promise<User | undefined>;
+
+  /**
+   * Получить пользователя по ID
+   */
+  getUserById(id: number): Promise<User | undefined>;
 
   /**
    * Получить пользователя по username (alias для совместимости)
@@ -53,6 +62,36 @@ export interface IStorage {
    * Добавить запись в таблицу лидеров
    */
   addLeaderboardEntry(entry: InsertLeaderboard): Promise<void>;
+
+  /**
+   * Создать класс для учителя
+   */
+  createClass(insertClass: InsertClass): Promise<Class>;
+
+  /**
+   * Получить класс по коду
+   */
+  getClassByCode(classCode: string): Promise<Class | undefined>;
+
+  /**
+   * Добавить студента в класс
+   */
+  addStudentToClass(studentId: number, classId: number): Promise<ClassStudent>;
+
+  /**
+   * Получить классы преподавателя
+   */
+  getTeacherClasses(teacherId: number): Promise<Class[]>;
+
+  /**
+   * Получить студентов в классе
+   */
+  getClassStudents(classId: number): Promise<User[]>;
+
+  /**
+   * Проверить, есть ли студент в классе
+   */
+  isStudentInClass(studentId: number, classId: number): Promise<boolean>;
 }
 
 /**
@@ -73,6 +112,24 @@ export class DatabaseStorage implements IStorage {
       return user[0];
     } catch (error) {
       console.error("[storage] Error getting user:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить пользователя по ID
+   */
+  async getUserById(id: number): Promise<User | undefined> {
+    try {
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+
+      return user[0];
+    } catch (error) {
+      console.error("[storage] Error getting user by ID:", error);
       throw error;
     }
   }
@@ -193,6 +250,108 @@ export class DatabaseStorage implements IStorage {
       await db.insert(leaderboard).values(entry);
     } catch (error) {
       console.error("[storage] Error adding leaderboard entry:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Создать класс для учителя
+   */
+  async createClass(insertClass: InsertClass): Promise<Class> {
+    try {
+      const result = await db.insert(classes).values(insertClass).returning();
+      return result[0];
+    } catch (error) {
+      console.error("[storage] Error creating class:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить класс по коду
+   */
+  async getClassByCode(classCode: string): Promise<Class | undefined> {
+    try {
+      const cls = await db
+        .select()
+        .from(classes)
+        .where(eq(classes.class_code, classCode))
+        .limit(1);
+
+      return cls[0];
+    } catch (error) {
+      console.error("[storage] Error getting class by code:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Добавить студента в класс
+   */
+  async addStudentToClass(studentId: number, classId: number): Promise<ClassStudent> {
+    try {
+      const result = await db
+        .insert(classStudents)
+        .values({ student_id: studentId, class_id: classId })
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error("[storage] Error adding student to class:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить классы преподавателя
+   */
+  async getTeacherClasses(teacherId: number): Promise<Class[]> {
+    try {
+      const result = await db
+        .select()
+        .from(classes)
+        .where(eq(classes.teacher_id, teacherId));
+
+      return result;
+    } catch (error) {
+      console.error("[storage] Error getting teacher classes:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить студентов в классе
+   */
+  async getClassStudents(classId: number): Promise<User[]> {
+    try {
+      const result = await db
+        .select({ student: users })
+        .from(classStudents)
+        .where(eq(classStudents.class_id, classId));
+
+      return result.map((row: any) => row.student);
+    } catch (error) {
+      console.error("[storage] Error getting class students:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Проверить, есть ли студент в классе
+   */
+  async isStudentInClass(studentId: number, classId: number): Promise<boolean> {
+    try {
+      const result = await db
+        .select()
+        .from(classStudents)
+        .where(
+          eq(classStudents.student_id, studentId) &&
+          eq(classStudents.class_id, classId)
+        )
+        .limit(1);
+
+      return result.length > 0;
+    } catch (error) {
+      console.error("[storage] Error checking student in class:", error);
       throw error;
     }
   }

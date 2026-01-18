@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { db } from "./db";
+import { storage } from "./storage";
+import bcrypt from "bcryptjs";
 import os from "os";
 
 const app = express();
@@ -75,6 +77,56 @@ function getLocalIPs(): string[] {
 }
 
 /**
+ * Инициализировать админского пользователя
+ */
+async function initializeAdmin(): Promise<void> {
+  const ADMIN_USERNAME = "admin007";
+  const ADMIN_PASSWORD = "Admin007";
+
+  try {
+    // Проверяем, существует ли уже админский аккаунт
+    const existingAdmin = await storage.getUser(ADMIN_USERNAME);
+
+    if (existingAdmin) {
+      console.log(`\n[ADMIN] ✓ Админский аккаунт уже существует:`);
+      console.log(`[ADMIN]   📝 Имя пользователя: ${ADMIN_USERNAME}`);
+      console.log(`[ADMIN]   🔐 Пароль: ${ADMIN_PASSWORD}`);
+      console.log(`[ADMIN]   👤 ID: ${existingAdmin.id}`);
+      console.log(`[ADMIN]   📅 Создан: ${existingAdmin.created_at}`);
+      return;
+    }
+
+    // Создаём админский аккаунт
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+    const admin = await storage.createUser({
+      username: ADMIN_USERNAME,
+      password_hash: hashedPassword,
+      role: "teacher",
+      class_code: "ADMIN0",
+    });
+
+    // Инициализируем прогресс админа
+    await storage.initializeUserProgress(admin.id);
+
+    // Создаём класс для админа
+    await storage.createClass({
+      teacher_id: admin.id,
+      class_code: "ADMIN0",
+      class_name: "Administration",
+    });
+
+    console.log(`\n[ADMIN] ✓ Новый админский аккаунт создан:`);
+    console.log(`[ADMIN]   📝 Имя пользователя: ${ADMIN_USERNAME}`);
+    console.log(`[ADMIN]   🔐 Пароль: ${ADMIN_PASSWORD}`);
+    console.log(`[ADMIN]   👤 ID: ${admin.id}`);
+    console.log(`[ADMIN]   📅 Создан: ${admin.created_at}`);
+    console.log(`[ADMIN] ⚠️  ВАЖНО: Измените пароль при первом входе!\n`);
+  } catch (error) {
+    console.error("[ADMIN] ✗ Ошибка при инициализации админа:", error);
+  }
+}
+
+/**
  * ============================================================================
  * Routes
  * ============================================================================
@@ -84,6 +136,9 @@ function getLocalIPs(): string[] {
   try {
     // Инициализируем БД (проверяем соединение)
     console.log("[db] Database connection initialized");
+
+    // Инициализируем админского пользователя
+    await initializeAdmin();
 
     // Регистрируем все API роуты
     await registerRoutes(app);

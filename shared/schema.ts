@@ -11,7 +11,38 @@ export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   username: text("username").unique().notNull(),
   password_hash: text("password_hash").notNull(),
+  role: text("role").default("student").notNull(), // "student" or "teacher"
+  class_code: text("class_code"), // 5-digit code for teacher or student joining code
   created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+/**
+ * Classes table
+ * Хранит информацию о классах и связь учеников с классами
+ */
+export const classes = sqliteTable("classes", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  teacher_id: integer("teacher_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  class_code: text("class_code").unique().notNull(), // 5-digit unique code
+  class_name: text("class_name"),
+  created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+/**
+ * ClassStudents table
+ * Хранит связь между студентами и их классами
+ */
+export const classStudents = sqliteTable("class_students", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  student_id: integer("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  class_id: integer("class_id")
+    .references(() => classes.id, { onDelete: "cascade" })
+    .notNull(),
+  joined_at: text("joined_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
 /**
@@ -56,9 +87,32 @@ export const leaderboard = sqliteTable("leaderboard", {
 export const insertUserSchema = createInsertSchema(users, {
   username: z.string().min(3, "Username must be at least 3 characters"),
   password_hash: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["student", "teacher"]).default("student"),
+  class_code: z.string().optional(),
 });
 
 export const selectUserSchema = createSelectSchema(users);
+
+/**
+ * Classes - Zod схемы
+ */
+export const insertClassSchema = createInsertSchema(classes, {
+  teacher_id: z.number().int().positive(),
+  class_code: z.string().length(5, "Class code must be exactly 5 digits"),
+  class_name: z.string().optional(),
+});
+
+export const selectClassSchema = createSelectSchema(classes);
+
+/**
+ * ClassStudents - Zod схемы
+ */
+export const insertClassStudentSchema = createInsertSchema(classStudents, {
+  student_id: z.number().int().positive(),
+  class_id: z.number().int().positive(),
+});
+
+export const selectClassStudentSchema = createSelectSchema(classStudents);
 
 /**
  * User Progress - Zod схемы
@@ -99,6 +153,18 @@ export const selectLeaderboardSchema = createSelectSchema(leaderboard);
  */
 export type User = z.infer<typeof selectUserSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+/**
+ * Class типы
+ */
+export type Class = z.infer<typeof selectClassSchema>;
+export type InsertClass = z.infer<typeof insertClassSchema>;
+
+/**
+ * ClassStudent типы
+ */
+export type ClassStudent = z.infer<typeof selectClassStudentSchema>;
+export type InsertClassStudent = z.infer<typeof insertClassStudentSchema>;
 
 /**
  * User Progress типы

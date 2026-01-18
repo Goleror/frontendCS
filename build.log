@@ -1,0 +1,105 @@
+
+> rest-express@1.0.0 build
+> tsx script/build.ts
+
+building client...
+vite v5.4.19 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 15 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 16 modules transformed.
+x Build failed in 1.57s
+Could not resolve "./hooks/useAutoSaveProgress" from "client/src/App.tsx"
+file: /home/onevochka/Рабочий стол/project/newarchCS/client/src/App.tsx
+    at getRollupError (file:///home/onevochka/%D0%A0%D0%B0%D0%B1%D0%BE%D1%87%D0%B8%D0%B9%20%D1%81%D1%82%D0%BE%D0%BB/project/newarchCS/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+    at error (file:///home/onevochka/%D0%A0%D0%B0%D0%B1%D0%BE%D1%87%D0%B8%D0%B9%20%D1%81%D1%82%D0%BE%D0%BB/project/newarchCS/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+    at ModuleLoader.handleInvalidResolvedId (/home/onevochka/Рабочий стол/project/newarchCS/node_modules/rollup/dist/es/shared/node-entry.js:20065:24)
+    at <anonymous> (/home/onevochka/Рабочий стол/project/newarchCS/node_modules/rollup/dist/es/shared/node-entry.js:20025:26) {
+  code: 'UNRESOLVED_IMPORT',
+  exporter: './hooks/useAutoSaveProgress',
+  id: '/home/onevochka/Рабочий стол/project/newarchCS/client/src/App.tsx',
+  watchFiles: [
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/index.html',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/main.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/package.json',
+    '/home/onevochka/Рабочий стол/project/newarchCS/node_modules/react/jsx-runtime.js',
+    '/home/onevochka/Рабочий стол/project/newarchCS/node_modules/react-dom/client.js',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/index.css',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/App.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/node_modules/react-dom/index.js',
+    '/home/onevochka/Рабочий стол/project/newarchCS/node_modules/react/cjs/react-jsx-runtime.production.min.js',
+    '/home/onevochka/Рабочий стол/project/newarchCS/node_modules/react/index.js',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/Terminal.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/CyberDeck.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/SoundToggle.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/AchievementPopup.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/VictoryModal.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/AuthPage.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/MultiplayerLobby.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useMissionSound.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useAchievementTracker.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useGameEngine.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useProgressSync.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useAchievements.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/useProceduralMissions.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/lib/queryClient.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/lib/utils.ts',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/AchievementPanel.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/BonusMissions.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/Leaderboard.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/Wiki.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/hooks/use-is-mobile.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/pages/not-found.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/accordion.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/alert-dialog.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/alert.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/aspect-ratio.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/avatar.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/badge.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/breadcrumb.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/button.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/calendar.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/card.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/carousel.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/chart.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/checkbox.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/collapsible.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/command.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/context-menu.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/dialog.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/drawer.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/dropdown-menu.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/form.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/hover-card.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/input-otp.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/input.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/interface.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/label.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/menubar.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/navigation-menu.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/pagination.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/popover.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/progress.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/radio-group.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/resizable.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/scroll-area.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/select.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/separator.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/sheet.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/sidebar.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/skeleton.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/slider.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/sonner.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/switch.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/table.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/tabs.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/textarea.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/toggle-group.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/toggle.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/components/ui/tooltip.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/lib/stores/useAudio.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/client/src/lib/stores/useGame.tsx',
+    '/home/onevochka/Рабочий стол/project/newarchCS/tailwind.config.ts'
+  ]
+}

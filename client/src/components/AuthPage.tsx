@@ -10,6 +10,9 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState<'student' | 'teacher'>('student');
+  const [classCode, setClassCode] = useState('');
+  const [generatedClassCode, setGeneratedClassCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -52,23 +55,45 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
         setError('Пароль должен быть минимум 8 символов');
         return;
       }
+      if (role === 'student' && !classCode.trim()) {
+        setError('Введите код класса');
+        return;
+      }
+      if (role === 'student' && classCode.length !== 5) {
+        setError('Код класса должен быть из 5 символов');
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const body: any = { username: username.trim(), password };
+      
+      if (!isLogin) {
+        body.role = role;
+        if (role === 'student') {
+          body.classCode = classCode.trim();
+        }
+      }
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
         const user = await response.json();
-        setSuccess(`${isLogin ? 'Вход' : 'Регистрация'} успешен!`);
-        // Сразу переходим в аккаунт, без задержки
-        onAuthSuccess(user.username);
+        if (!isLogin && user.role === 'teacher' && user.class_code) {
+          setGeneratedClassCode(user.class_code);
+          setSuccess(`Регистрация успешна! Ваш код класса: ${user.class_code}`);
+        } else {
+          setSuccess(`${isLogin ? 'Вход' : 'Регистрация'} успешен!`);
+          // Сразу переходим в аккаунт, без задержки
+          setTimeout(() => onAuthSuccess(user.username), 1000);
+        }
       } else {
         const data = await response.json();
         setError(data.error || 'Ошибка аутентификации');
@@ -78,6 +103,13 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCopyCode = () => {
+    if (generatedClassCode) {
+      navigator.clipboard.writeText(generatedClassCode);
+      setSuccess('Код скопирован в буфер обмена!');
     }
   };
 
@@ -109,6 +141,41 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Role selection (registration only) */}
+            {!isLogin && (
+              <div>
+                <label className="block text-xs text-green-400 mb-2">
+                  Выберите роль
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRole('student')}
+                    className={`flex-1 py-2 px-3 rounded border text-xs font-semibold transition ${
+                      role === 'student'
+                        ? 'bg-cyan-600 border-cyan-400 text-white'
+                        : 'bg-black border-cyan-500/50 text-cyan-400 hover:border-cyan-400'
+                    }`}
+                    disabled={loading}
+                  >
+                    👨‍🎓 Ученик
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRole('teacher')}
+                    className={`flex-1 py-2 px-3 rounded border text-xs font-semibold transition ${
+                      role === 'teacher'
+                        ? 'bg-cyan-600 border-cyan-400 text-white'
+                        : 'bg-black border-cyan-500/50 text-cyan-400 hover:border-cyan-400'
+                    }`}
+                    disabled={loading}
+                  >
+                    👨‍🏫 Учитель
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Username */}
             <div>
               <label className="block text-xs text-green-400 mb-2">
@@ -176,6 +243,27 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
               </div>
             )}
 
+            {/* Class code for students (registration only) */}
+            {!isLogin && role === 'student' && (
+              <div>
+                <label className="block text-xs text-green-400 mb-2">
+                  Код класса (5 символов)
+                </label>
+                <input
+                  type="text"
+                  value={classCode}
+                  onChange={(e) => setClassCode(e.target.value.toUpperCase())}
+                  maxLength={5}
+                  placeholder="XXXXX"
+                  className="w-full bg-black border border-cyan-500/50 rounded px-3 py-2 text-green-400 placeholder-white/30 focus:outline-none focus:border-cyan-400 focus:bg-cyan-900/20 transition"
+                  disabled={loading}
+                />
+                <p className="text-xs text-white/40 mt-1">
+                  Попросите код у вашего учителя
+                </p>
+              </div>
+            )}
+
             {/* Error message */}
             {error && (
               <div className="flex items-center gap-2 p-3 rounded bg-red-500/20 border border-red-500/50">
@@ -186,16 +274,27 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
 
             {/* Success message */}
             {success && (
-              <div className="flex items-center gap-2 p-3 rounded bg-green-500/20 border border-green-500/50">
-                <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                <span className="text-xs text-green-400">{success}</span>
+              <div className="flex items-start gap-2 p-3 rounded bg-green-500/20 border border-green-500/50">
+                <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 text-xs text-green-400 leading-relaxed">
+                  {success}
+                  {generatedClassCode && (
+                    <button
+                      type="button"
+                      onClick={handleCopyCode}
+                      className="block mt-2 text-cyan-400 hover:text-cyan-300 text-xs font-semibold transition"
+                    >
+                      📋 Скопировать код
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
             {/* Submit button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (generatedClassCode !== '' && !isLogin)}
               className="w-full mt-6 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-cyan-600/50 text-white font-bold rounded transition duration-200 flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -212,6 +311,21 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
             </button>
           </form>
 
+          {/* Generated class code display */}
+          {generatedClassCode && !isLogin && (
+            <div className="mt-6 p-4 rounded bg-cyan-500/20 border border-cyan-500/50">
+              <p className="text-xs text-cyan-400 mb-2 font-semibold">
+                ✓ Ваш код класса:
+              </p>
+              <p className="text-2xl font-bold text-green-400 tracking-widest text-center">
+                {generatedClassCode}
+              </p>
+              <p className="text-xs text-white/60 mt-2 text-center">
+                Поделитесь этим кодом со своими учениками
+              </p>
+            </div>
+          )}
+
           {/* Toggle between login and register */}
           <div className="mt-6 pt-6 border-t border-cyan-500/30 text-center">
             <p className="text-xs text-white/60 mb-3">
@@ -224,8 +338,10 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
                 setSuccess('');
                 setPassword('');
                 setConfirmPassword('');
+                setClassCode('');
+                setGeneratedClassCode('');
               }}
-              disabled={loading}
+              disabled={loading || generatedClassCode !== ''}
               className="text-cyan-400 hover:text-cyan-300 disabled:text-cyan-600 font-semibold text-sm transition"
             >
               {isLogin ? 'СОЗДАТЬ АККАУНТ' : 'ВХОД'}
@@ -237,7 +353,7 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
             <p className="text-xs text-white/40 leading-relaxed">
               ⚔️ Защищённая система<br />
               🔒 Шифрованные пароли<br />
-              🛡️ Сессионное управление
+              🛡️ Управление классами
             </p>
           </div>
         </div>

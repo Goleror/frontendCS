@@ -1,0 +1,20 @@
+--- a/client/src/hooks/useGameEngine.ts
++++ b/client/src/hooks/useGameEngine.ts
+@@ -971,6 +971,17 @@ export const useGameEngine = create<GameState>(
++  resetGameState: () => {
++    set({
++      fileSystem: INITIAL_FILESYSTEM,
++      currentPath: '/',
++      processes: INITIAL_PROCESSES,
++      terminalHistory: [],
++      lineCounter: 0,
++      currentMission: 1,
++      missions: INITIAL_MISSIONS,
++      gameCompleted: false,
++      gameStartTime: 0,
++      commandCount: 0,
++      errorCount: 0,
++    });
++  },
+   })
+ );
