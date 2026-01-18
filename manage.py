@@ -14,6 +14,7 @@ from typing import Tuple, List, Optional
 import shutil
 import re
 import io
+import webbrowser
 
 # Fix encoding for Windows console (UTF-8 output)
 if platform.system() == "Windows":
@@ -41,6 +42,13 @@ class Colors:
     LIGHT_BLUE = '\033[94m'
     LIGHT_MAGENTA = '\033[95m'
     LIGHT_CYAN = '\033[96m'
+    
+    # Cyberpunk colors
+    NEON_PINK = '\033[38;5;205m'
+    NEON_CYAN = '\033[38;5;51m'
+    NEON_GREEN = '\033[38;5;46m'
+    NEON_YELLOW = '\033[38;5;226m'
+    NEON_PURPLE = '\033[38;5;135m'
 
 
 def clear_screen():
@@ -50,9 +58,9 @@ def clear_screen():
 
 def print_header(text: str):
     """Вывести заголовок"""
-    print(f"\n{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.OKBLUE}{text.center(70)}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}\n")
+    print(f"\n{Colors.BOLD}{Colors.NEON_CYAN}{'═'*70}{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.NEON_PINK}{text.center(70)}{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.NEON_CYAN}{'═'*70}{Colors.ENDC}\n")
 
 
 def print_success(text: str):
@@ -77,8 +85,8 @@ def print_info(text: str):
 
 def print_section(title: str):
     """Вывести заголовок секции"""
-    print(f"\n{Colors.BOLD}{Colors.LIGHT_CYAN}→ {title}{Colors.ENDC}")
-    print(f"{Colors.DARK_GRAY}{'-'*70}{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}{Colors.NEON_GREEN}→ {title}{Colors.ENDC}")
+    print(f"{Colors.NEON_CYAN}{'-'*70}{Colors.ENDC}")
 
 
 def run_command(cmd: List[str], shell: bool = False, capture: bool = False) -> Tuple[int, str, str]:
@@ -470,29 +478,35 @@ def clear_logs() -> None:
     print()
 
 
+def ask_question() -> None:
+    """Задать вопрос (Rick Roll)"""
+    webbrowser.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+
 def print_menu() -> None:
     """Вывести главное меню"""
     clear_screen()
     
-    print(f"\n{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.OKBLUE}{'CYBERSHIELD PROJECT MANAGER'.center(70)}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}")
+    print(f"\n{Colors.BOLD}{Colors.NEON_CYAN}{'═'*70}{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.NEON_PINK}  🎮 CYBERSHIELD PROJECT MANAGER{Colors.ENDC}")
+    print(f"{Colors.BOLD}{Colors.NEON_CYAN}{'═'*70}{Colors.ENDC}")
     print(f"{Colors.DARK_GRAY}{'by onevu'.center(70)}{Colors.ENDC}\n")
     
-    print(f"{Colors.BOLD}Главное меню:{Colors.ENDC}\n")
+    print(f"{Colors.BOLD}{Colors.NEON_GREEN}▼ Главное меню:{Colors.ENDC}\n")
     
     menu_items = [
-        ("1", "Запустить dev сервер (с выбором платформы)", Colors.LIGHT_GREEN),
-        ("2", "Собрать проект", Colors.LIGHT_CYAN),
-        ("3", "Установить зависимости", Colors.LIGHT_YELLOW),
-        ("4", "Проверить систему", Colors.LIGHT_BLUE),
-        ("5", "Просмотреть логи", Colors.LIGHT_MAGENTA),
-        ("6", "Очистить логи", Colors.LIGHT_RED),
-        ("7", "Выход", Colors.FAIL),
+        ("1", "Запустить dev сервер (с выбором платформы)", Colors.NEON_GREEN),
+        ("2", "Собрать проект", Colors.NEON_CYAN),
+        ("3", "Установить зависимости", Colors.NEON_YELLOW),
+        ("4", "Проверить систему", Colors.NEON_PURPLE),
+        ("5", "Просмотреть логи", Colors.NEON_CYAN),
+        ("6", "Очистить логи", Colors.NEON_PINK),
+        ("7", "❓ Задать вопрос", Colors.NEON_YELLOW),
+        ("8", "Выход", Colors.LIGHT_RED),
     ]
     
     for key, text, color in menu_items:
-        print(f"{color}  {key}. {text}{Colors.ENDC}")
+        print(f"{Colors.BOLD}{color}  [{key}]{Colors.ENDC} {text}")
     
     print()
 
@@ -503,7 +517,7 @@ def main():
         print_menu()
         
         try:
-            choice = input(f"{Colors.BOLD}Выберите опцию (1-7): {Colors.ENDC}").strip()
+            choice = input(f"{Colors.BOLD}Выберите опцию (1-8): {Colors.ENDC}").strip()
             
             if choice == "1":
                 start_dev_server()
@@ -516,7 +530,7 @@ def main():
             elif choice == "5":
                 # Меню выбора типа логов
                 clear_screen()
-                print(f"\n{Colors.BOLD}{Colors.OKCYAN}Выберите тип логов:{Colors.ENDC}\n")
+                print(f"\n{Colors.BOLD}{Colors.NEON_PURPLE}Выберите тип логов:{Colors.ENDC}\n")
                 log_menu = [
                     ("1", "📘 Backend логи"),
                     ("2", "📗 Frontend логи"),
@@ -524,9 +538,9 @@ def main():
                     ("4", "🚫 Отключить просмотр"),
                 ]
                 for key, text in log_menu:
-                    print(f"  {key}. {text}")
+                    print(f"{Colors.BOLD}{Colors.NEON_CYAN}  [{key}]{Colors.ENDC} {text}")
                 print()
-                log_choice = input(f"{Colors.BOLD}Выберите (1-4): {Colors.ENDC}").strip()
+                log_choice = input(f"{Colors.BOLD}{Colors.NEON_GREEN}Выберите (1-4): {Colors.ENDC}").strip()
                 
                 log_types = {
                     "1": "backend",
@@ -540,12 +554,19 @@ def main():
                 if confirm == 'y':
                     clear_logs()
             elif choice == "7":
-                print_success("До свидания! 👋")
+                ask_question()
+            elif choice == "8":
+                clear_screen()
+                print(f"\n{Colors.BOLD}{Colors.NEON_GREEN}{'='*70}{Colors.ENDC}")
+                print(f"{Colors.BOLD}{Colors.NEON_PINK}{'До свидания! 👋'.center(70)}{Colors.ENDC}")
+                print(f"{Colors.BOLD}{Colors.NEON_CYAN}{'='*70}{Colors.ENDC}")
+                print(f"{Colors.NEON_YELLOW}{'Спасибо за использование CyberShield!'.center(70)}{Colors.ENDC}\n")
                 break
             else:
                 print_error("Неправильный выбор")
             
-            input(f"\n{Colors.DARK_GRAY}Нажмите Enter для продолжения...{Colors.ENDC}")
+            if choice != "7":
+                input(f"\n{Colors.DARK_GRAY}Нажмите Enter для продолжения...{Colors.ENDC}")
         
         except KeyboardInterrupt:
             print_success("\nПрограмма завершена")
