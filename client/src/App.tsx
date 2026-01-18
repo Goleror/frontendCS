@@ -11,7 +11,17 @@ import { useAchievementTracker } from './hooks/useAchievementTracker';
 import { useGameEngine } from './hooks/useGameEngine';
 import { useProgressSync } from './hooks/useProgressSync';
 import { useAutoSaveProgress } from './hooks/useAutoSaveProgress';
-import { useProgressSync } from './hooks/useProgressSync';
+
+// Constants for localStorage
+const GAME_STATE_KEY = 'gameState';
+const GAME_STATE_VERSION = 1;
+
+interface GameState {
+  version: number;
+  gameMode: 'menu' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer';
+  multiplayerRoom: string | null;
+  playerTeam: 'red' | 'blue' | null;
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -83,9 +93,44 @@ interface GameAppProps {
 }
 
 function GameApp({ username, onLogout }: GameAppProps) {
-  const [gameMode, setGameMode] = useState<'menu' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer'>('menu');
-  const [multiplayerRoom, setMultiplayerRoom] = useState<string | null>(null);
-  const [playerTeam, setPlayerTeam] = useState<'red' | 'blue' | null>(null);
+  // Функция для загрузки состояния из localStorage
+  const loadGameState = (): GameState => {
+    try {
+      const saved = localStorage.getItem(GAME_STATE_KEY);
+      if (saved) {
+        const state = JSON.parse(saved) as GameState;
+        if (state.version === GAME_STATE_VERSION) {
+          console.log('[GameApp] Loaded game state from localStorage:', state);
+          return state;
+        }
+      }
+    } catch (e) {
+      console.error('[GameApp] Error loading game state:', e);
+    }
+    return {
+      version: GAME_STATE_VERSION,
+      gameMode: 'menu',
+      multiplayerRoom: null,
+      playerTeam: null,
+    };
+  };
+
+  // Функция для сохранения состояния в localStorage
+  const saveGameState = (state: Partial<GameState>) => {
+    try {
+      const current = loadGameState();
+      const updated = { ...current, ...state };
+      localStorage.setItem(GAME_STATE_KEY, JSON.stringify(updated));
+      console.log('[GameApp] Saved game state to localStorage:', updated);
+    } catch (e) {
+      console.error('[GameApp] Error saving game state:', e);
+    }
+  };
+
+  const initialState = loadGameState();
+  const [gameMode, setGameMode] = useState<'menu' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer'>(initialState.gameMode);
+  const [multiplayerRoom, setMultiplayerRoom] = useState<string | null>(initialState.multiplayerRoom);
+  const [playerTeam, setPlayerTeam] = useState<'red' | 'blue' | null>(initialState.playerTeam);
   
   useMissionSound();
   const { newAchievement, clearNewAchievement } = useAchievementTracker();
@@ -113,13 +158,36 @@ function GameApp({ username, onLogout }: GameAppProps) {
     setMultiplayerRoom(roomCode);
     setPlayerTeam(team);
     setGameMode('game-multiplayer');
+    saveGameState({
+      gameMode: 'game-multiplayer',
+      multiplayerRoom: roomCode,
+      playerTeam: team,
+    });
   };
 
   const handleBackToMenu = () => {
     setGameMode('menu');
     setMultiplayerRoom(null);
     setPlayerTeam(null);
+    saveGameState({
+      gameMode: 'menu',
+      multiplayerRoom: null,
+      playerTeam: null,
+    });
   };
+
+  // Сохраняем состояние когда меняется gameMode
+  useEffect(() => {
+    if (gameMode !== 'menu') {
+      saveGameState({
+        gameMode,
+        multiplayerRoom,
+        playerTeam,
+      });
+    } else {
+      saveGameState({ gameMode: 'menu' });
+    }
+  }, [gameMode]);
 
   // Show main menu
   if (gameMode === 'menu') {

@@ -18,6 +18,8 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
   const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registeredUsername, setRegisteredUsername] = useState('');
+  const [isRegistrationComplete, setIsRegistrationComplete] = useState(false);
 
   useEffect(() => {
     // Check if already authenticated
@@ -87,11 +89,20 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
       if (response.ok) {
         const user = await response.json();
         if (!isLogin && user.role === 'teacher' && user.class_code) {
+          // Учитель зарегистрирован, показываем код и кнопку "Далее"
           setGeneratedClassCode(user.class_code);
+          setRegisteredUsername(user.username);
           setSuccess(`Регистрация успешна! Ваш код класса: ${user.class_code}`);
-        } else {
+          setIsRegistrationComplete(true);
+        } else if (!isLogin && user.role === 'student') {
+          // Студент зарегистрирован, переходим в игру
+          setSuccess(`Регистрация успешна!`);
+          setRegisteredUsername(user.username);
+          setIsRegistrationComplete(true);
+          setTimeout(() => onAuthSuccess(user.username), 1000);
+        } else if (isLogin) {
+          // Обычный вход
           setSuccess(`${isLogin ? 'Вход' : 'Регистрация'} успешен!`);
-          // Сразу переходим в аккаунт, без задержки
           setTimeout(() => onAuthSuccess(user.username), 1000);
         }
       } else {
@@ -273,20 +284,11 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
             )}
 
             {/* Success message */}
-            {success && (
+            {success && !generatedClassCode && (
               <div className="flex items-start gap-2 p-3 rounded bg-green-500/20 border border-green-500/50">
                 <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 text-xs text-green-400 leading-relaxed">
                   {success}
-                  {generatedClassCode && (
-                    <button
-                      type="button"
-                      onClick={handleCopyCode}
-                      className="block mt-2 text-cyan-400 hover:text-cyan-300 text-xs font-semibold transition"
-                    >
-                      📋 Скопировать код
-                    </button>
-                  )}
                 </div>
               </div>
             )}
@@ -294,7 +296,7 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
             {/* Submit button */}
             <button
               type="submit"
-              disabled={loading || (generatedClassCode !== '' && !isLogin)}
+              disabled={loading || (isRegistrationComplete && !isLogin)}
               className="w-full mt-6 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-cyan-600/50 text-white font-bold rounded transition duration-200 flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -311,18 +313,44 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
             </button>
           </form>
 
-          {/* Generated class code display */}
-          {generatedClassCode && !isLogin && (
-            <div className="mt-6 p-4 rounded bg-cyan-500/20 border border-cyan-500/50">
-              <p className="text-xs text-cyan-400 mb-2 font-semibold">
-                ✓ Ваш код класса:
-              </p>
-              <p className="text-2xl font-bold text-green-400 tracking-widest text-center">
-                {generatedClassCode}
-              </p>
-              <p className="text-xs text-white/60 mt-2 text-center">
-                Поделитесь этим кодом со своими учениками
-              </p>
+          {/* Generated class code display for teacher */}
+          {generatedClassCode && !isLogin && isRegistrationComplete && (
+            <div className="mt-6 space-y-4">
+              <div className="p-4 rounded bg-cyan-500/20 border border-cyan-500/50">
+                <p className="text-xs text-cyan-400 mb-2 font-semibold">
+                  ✓ Ваш код класса:
+                </p>
+                <p className="text-2xl font-bold text-green-400 tracking-widest text-center">
+                  {generatedClassCode}
+                </p>
+                <p className="text-xs text-white/60 mt-2 text-center">
+                  Поделитесь этим кодом со своими учениками
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCopyCode}
+                  className="w-full mt-3 px-3 py-1 text-cyan-400 hover:text-cyan-300 text-xs font-semibold transition border border-cyan-400/50 rounded hover:bg-cyan-400/10"
+                >
+                  📋 Скопировать код
+                </button>
+              </div>
+              
+              {/* Proceed button for teacher */}
+              <button
+                type="button"
+                onClick={() => onAuthSuccess(registeredUsername)}
+                className="w-full px-4 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded transition duration-200 flex items-center justify-center gap-2"
+              >
+                ▶ ДАЛЕЕ В ИГРУ
+              </button>
+            </div>
+          )}
+
+          {/* Success message for copy */}
+          {success && generatedClassCode && (
+            <div className="mt-4 flex items-start gap-2 p-3 rounded bg-green-500/20 border border-green-500/50">
+              <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+              <span className="text-xs text-green-400">{success}</span>
             </div>
           )}
 
@@ -340,8 +368,10 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
                 setConfirmPassword('');
                 setClassCode('');
                 setGeneratedClassCode('');
+                setRegisteredUsername('');
+                setIsRegistrationComplete(false);
               }}
-              disabled={loading || generatedClassCode !== ''}
+              disabled={loading || isRegistrationComplete}
               className="text-cyan-400 hover:text-cyan-300 disabled:text-cyan-600 font-semibold text-sm transition"
             >
               {isLogin ? 'СОЗДАТЬ АККАУНТ' : 'ВХОД'}
