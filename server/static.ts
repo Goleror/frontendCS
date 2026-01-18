@@ -1,11 +1,25 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+let __filename: string;
+let __dirname: string;
+
+// Handle both ESM and CJS contexts
+if (typeof import.meta !== 'undefined' && import.meta.url) {
+  __filename = fileURLToPath(import.meta.url);
+  __dirname = path.dirname(__filename);
+} else {
+  // Fallback for CJS environment
+  __dirname = process.cwd();
+  __filename = path.join(__dirname, 'index.js');
+}
 
 export function serveStatic(app: Express) {
   // В режиме production: используем относительный путь от dist/index.cjs
   // В режиме development: используем относительный путь от server/
-  const baseDir = path.dirname(__filename);
+  const baseDir = __dirname;
   
   const possiblePaths = [
     path.resolve(baseDir, "../dist"),           // Production (up from dist/)

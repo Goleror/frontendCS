@@ -6,19 +6,21 @@ import { AchievementPopup } from './components/AchievementPopup';
 import { VictoryModal } from './components/VictoryModal';
 import { AuthPage } from './components/AuthPage';
 import { MultiplayerLobby } from './components/MultiplayerLobby';
+import { AdminPanel } from './components/AdminPanel';
 import { useMissionSound } from './hooks/useMissionSound';
 import { useAchievementTracker } from './hooks/useAchievementTracker';
 import { useGameEngine } from './hooks/useGameEngine';
 import { useProgressSync } from './hooks/useProgressSync';
 import { useAutoSaveProgress } from './hooks/useAutoSaveProgress';
+import { useInitializeGameProgress } from './hooks/useInitializeGameProgress';
 
-// Constants for localStorage
-const GAME_STATE_KEY = 'gameState';
+// Constants for localStorage - ТОЛЬКО для gameMode, НЕ для прогресса
+const GAME_STATE_KEY = 'gameState_ui';
 const GAME_STATE_VERSION = 1;
 
 interface GameState {
   version: number;
-  gameMode: 'menu' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer';
+  gameMode: 'menu' | 'admin' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer';
   multiplayerRoom: string | null;
   playerTeam: 'red' | 'blue' | null;
 }
@@ -128,23 +130,47 @@ function GameApp({ username, onLogout }: GameAppProps) {
   };
 
   const initialState = loadGameState();
-  const [gameMode, setGameMode] = useState<'menu' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer'>(initialState.gameMode);
+  const [gameMode, setGameMode] = useState<'menu' | 'admin' | 'game-singleplayer' | 'multiplayer-lobby' | 'game-multiplayer'>(initialState.gameMode as any);
   const [multiplayerRoom, setMultiplayerRoom] = useState<string | null>(initialState.multiplayerRoom);
   const [playerTeam, setPlayerTeam] = useState<'red' | 'blue' | null>(initialState.playerTeam);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   useMissionSound();
   const { newAchievement, clearNewAchievement } = useAchievementTracker();
   const { gameCompleted, getGameStats } = useGameEngine();
   const { loadProgress } = useProgressSync();
+  const { loadProgressFromServer } = useInitializeGameProgress();
   useAutoSaveProgress(); // Автоматическое сохранение прогресса
   const [showVictory, setShowVictory] = useState(false);
   const [gameStats, setGameStats] = useState({ completionTimeMs: 0, commandCount: 0, errorCount: 0 });
+  const [isLoadingProgress, setIsLoadingProgress] = useState(false);
 
-  // Загружаем прогресс при входе в игру
+  // Проверяем, является ли пользователь админом
   useEffect(() => {
-    console.log('[App] Loading player progress for', username);
-    loadProgress();
-  }, [username, loadProgress]);
+    const checkAdmin = async () => {
+      try {
+        const response = await fetch('/api/admin/check');
+        if (response.ok) {
+          const data = await response.json();
+          setIsAdmin(data.isAdmin);
+        }
+      } catch (err) {
+        console.error('Error checking admin status:', err);
+      }
+    };
+    checkAdmin();
+  }, []);
+
+  // Загружаем прогресс с сервера при входе в одиночную игру
+  useEffect(() => {
+    if (gameMode === 'game-singleplayer') {
+      console.log('[App] Входим в одиночную игру - загружаем прогресс');
+      setIsLoadingProgress(true);
+      loadProgressFromServer().then(() => {
+        setIsLoadingProgress(false);
+      });
+    }
+  }, [gameMode, loadProgressFromServer]);
 
   useEffect(() => {
     if (gameCompleted && !showVictory) {
@@ -189,6 +215,32 @@ function GameApp({ username, onLogout }: GameAppProps) {
     }
   }, [gameMode]);
 
+  // Show admin panel
+  if (gameMode === 'admin') {
+    return (
+      <div className="h-screen w-screen bg-[#0a0a0f] text-green-400 font-mono overflow-hidden">
+        <div className="absolute top-4 right-4 z-50 text-xs text-cyan-400 flex items-center gap-4">
+          <span>Админ: <span className="text-yellow-400 font-bold">{username}</span></span>
+          <button
+            onClick={() => setGameMode('menu')}
+            className="px-3 py-1 bg-yellow-600/20 border border-yellow-500/50 rounded hover:bg-yellow-600/30 transition text-yellow-400 text-xs font-mono"
+          >
+            [В МЕНЮ]
+          </button>
+          <button
+            onClick={onLogout}
+            className="px-3 py-1 bg-red-600/20 border border-red-500/50 rounded hover:bg-red-600/30 transition text-red-400 text-xs font-mono"
+          >
+            [ВЫХОД]
+          </button>
+        </div>
+        <div className="pt-12">
+          <AdminPanel onBack={() => setGameMode('menu')} />
+        </div>
+      </div>
+    );
+  }
+
   // Show main menu
   if (gameMode === 'menu') {
     return (
@@ -198,7 +250,7 @@ function GameApp({ username, onLogout }: GameAppProps) {
           <p className="text-sm text-green-400/80">Выберите режим игры</p>
         </div>
         
-        <div className="flex gap-6">
+        <div className="flex gap-6 flex-wrap justify-center">
           <button
             onClick={() => setGameMode('game-singleplayer')}
             className="px-8 py-4 bg-cyan-600/20 border border-cyan-500 rounded hover:bg-cyan-600/30 transition text-cyan-400 text-lg font-mono hover:shadow-lg hover:shadow-cyan-500/30"
@@ -212,6 +264,15 @@ function GameApp({ username, onLogout }: GameAppProps) {
           >
             [МУЛЬТИПЛЕЕР]
           </button>
+
+          {isAdmin && (
+            <button
+              onClick={() => setGameMode('admin')}
+              className="px-8 py-4 bg-yellow-600/20 border border-yellow-500 rounded hover:bg-yellow-600/30 transition text-yellow-400 text-lg font-mono hover:shadow-lg hover:shadow-yellow-500/30"
+            >
+              [АДМИНИСТРИРОВАНИЕ]
+            </button>
+          )}
         </div>
         
         <div className="absolute top-4 right-4 text-xs text-cyan-400 flex items-center gap-4">
@@ -235,6 +296,18 @@ function GameApp({ username, onLogout }: GameAppProps) {
         onGameStart={handleMultiplayerStart}
         onBackToMenu={handleBackToMenu}
       />
+    );
+  }
+  
+  // Show loading screen while progress is being loaded for singleplayer
+  if (gameMode === 'game-singleplayer' && isLoadingProgress) {
+    return (
+      <div className="h-screen w-screen bg-[#0a0a0f] text-green-400 font-mono flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-cyan-400">Загружаю ваш прогресс с сервера...</p>
+        </div>
+      </div>
     );
   }
   

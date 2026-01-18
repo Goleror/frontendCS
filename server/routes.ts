@@ -33,6 +33,30 @@ const requireAuth = (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
+ * Middleware для проверки, что пользователь является админом
+ */
+const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = (req.session as any)?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Требуется аутентификация" });
+    return;
+  }
+  
+  try {
+    const user = await storage.getUserById(userId);
+    if (!user || user.username !== 'admin007') {
+      res.status(403).json({ error: "Доступ запрещён. Требуются права администратора" });
+      return;
+    }
+    req.userId = userId;
+    next();
+  } catch (error) {
+    console.error("[routes] Admin check error:", error);
+    res.status(500).json({ error: "Ошибка проверки прав" });
+  }
+};
+
+/**
  * Функция регистрации всех роутов
  */
 export async function registerRoutes(app: Express): Promise<void> {
@@ -551,6 +575,171 @@ export async function registerRoutes(app: Express): Promise<void> {
       }
     }
   );
+
+  // ============================================================================
+  // API Admin Panel
+  // ============================================================================
+
+  /**
+   * GET /api/admin/dashboard
+   * Получить статистику администратора
+   */
+  app.get("/api/admin/dashboard", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      // Получаем всех пользователей из БД
+      const allUsers = await storage.getAllUsers();
+      
+      // Получаем все классы
+      const allClasses = await storage.getAllClasses();
+      
+      // Подсчитываем статистику
+      const stats = {
+        totalUsers: allUsers.length,
+        totalTeachers: allUsers.filter((u: any) => u.role === 'teacher').length,
+        totalStudents: allUsers.filter((u: any) => u.role === 'student').length,
+        totalClasses: allClasses.length,
+        users: allUsers,
+        classes: allClasses,
+      };
+
+      res.json(stats);
+    } catch (error) {
+      console.error("[routes] Admin dashboard error:", error);
+      res.status(500).json({ error: "Failed to get admin dashboard" });
+    }
+  });
+
+  /**
+   * GET /api/admin/users
+   * Получить список всех пользователей
+   */
+  app.get("/api/admin/users", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("[routes] Get users error:", error);
+      res.status(500).json({ error: "Failed to get users" });
+    }
+  });
+
+  /**
+   * DELETE /api/admin/users/:userId
+   * Удалить пользователя
+   */
+  app.delete("/api/admin/users/:userId", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.userId, 10);
+      
+      // Нельзя удалить самого админа
+      if (userId === 1) {
+        res.status(403).json({ error: "Cannot delete admin user" });
+        return;
+      }
+
+      await storage.deleteUser(userId);
+      res.json({ success: true, message: "User deleted" });
+    } catch (error) {
+      console.error("[routes] Delete user error:", error);
+      res.status(500).json({ error: "Failed to delete user" });
+    }
+  });
+
+  /**
+   * PUT /api/admin/users/:userId
+   * Обновить данные пользователя
+   */
+  app.put(
+    "/api/admin/users/:userId",
+    requireAdmin,
+    [
+      body("username").trim().optional().isLength({ min: 3 }),
+      body("role").optional().isIn(["student", "teacher"]),
+      body("class_code").trim().optional(),
+    ],
+    async (req: Request, res: Response) => {
+      try {
+        const userId = parseInt(req.params.userId, 10);
+        const { username, role, class_code } = req.body;
+
+        const updatedUser = await storage.updateUser(userId, {
+          username,
+          role,
+          class_code,
+        });
+
+        res.json(updatedUser);
+      } catch (error) {
+        console.error("[routes] Update user error:", error);
+        res.status(500).json({ error: "Failed to update user" });
+      }
+    }
+  );
+
+  /**
+   * GET /api/admin/classes
+   * Получить список всех классов
+   */
+  app.get("/api/admin/classes", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const classes = await storage.getAllClasses();
+      
+      // Обогащаем информацию о классах
+      const enrichedClasses = await Promise.all(
+        classes.map(async (cls: any) => {
+          const students = await storage.getClassStudents(cls.id);
+          return {
+            ...cls,
+            studentCount: students.length,
+            students: students,
+          };
+        })
+      );
+
+      res.json(enrichedClasses);
+    } catch (error) {
+      console.error("[routes] Get classes error:", error);
+      res.status(500).json({ error: "Failed to get classes" });
+    }
+  });
+
+  /**
+   * DELETE /api/admin/classes/:classId
+   * Удалить класс
+   */
+  app.delete("/api/admin/classes/:classId", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const classId = parseInt(req.params.classId, 10);
+      await storage.deleteClass(classId);
+      res.json({ success: true, message: "Class deleted" });
+    } catch (error) {
+      console.error("[routes] Delete class error:", error);
+      res.status(500).json({ error: "Failed to delete class" });
+    }
+  });
+
+  /**
+   * GET /api/admin/check
+   * Проверить, является ли текущий пользователь админом
+   */
+  app.get("/api/admin/check", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.userId!;
+      const user = await storage.getUserById(userId);
+      
+      res.json({
+        isAdmin: user?.username === 'admin007',
+        user: {
+          id: user?.id,
+          username: user?.username,
+          role: user?.role,
+        },
+      });
+    } catch (error) {
+      console.error("[routes] Admin check error:", error);
+      res.status(500).json({ error: "Failed to check admin status" });
+    }
+  });
 
   console.log("[routes] All routes registered successfully");
 }

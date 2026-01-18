@@ -92,6 +92,31 @@ export interface IStorage {
    * Проверить, есть ли студент в классе
    */
   isStudentInClass(studentId: number, classId: number): Promise<boolean>;
+
+  /**
+   * Получить всех пользователей
+   */
+  getAllUsers(): Promise<User[]>;
+
+  /**
+   * Получить все классы
+   */
+  getAllClasses(): Promise<Class[]>;
+
+  /**
+   * Обновить данные пользователя (админ функция)
+   */
+  updateUser(userId: number, data: Partial<{ username: string; role: string; class_code: string }>): Promise<User>;
+
+  /**
+   * Удалить пользователя (админ функция)
+   */
+  deleteUser(userId: number): Promise<void>;
+
+  /**
+   * Удалить класс (админ функция)
+   */
+  deleteClass(classId: number): Promise<void>;
 }
 
 /**
@@ -352,6 +377,82 @@ export class DatabaseStorage implements IStorage {
       return result.length > 0;
     } catch (error) {
       console.error("[storage] Error checking student in class:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить всех пользователей
+   */
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const allUsers = await db.select().from(users);
+      return allUsers;
+    } catch (error) {
+      console.error("[storage] Error getting all users:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получить все классы
+   */
+  async getAllClasses(): Promise<Class[]> {
+    try {
+      const allClasses = await db.select().from(classes);
+      return allClasses;
+    } catch (error) {
+      console.error("[storage] Error getting all classes:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Обновить данные пользователя
+   */
+  async updateUser(
+    userId: number,
+    data: Partial<{ username: string; role: string; class_code: string }>
+  ): Promise<User> {
+    try {
+      const updateData: any = {};
+      if (data.username) updateData.username = data.username;
+      if (data.role) updateData.role = data.role;
+      if (data.class_code) updateData.class_code = data.class_code;
+
+      const result = await db
+        .update(users)
+        .set(updateData)
+        .where(eq(users.id, userId))
+        .returning();
+
+      return result[0];
+    } catch (error) {
+      console.error("[storage] Error updating user:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Удалить пользователя
+   */
+  async deleteUser(userId: number): Promise<void> {
+    try {
+      await db.delete(users).where(eq(users.id, userId));
+    } catch (error) {
+      console.error("[storage] Error deleting user:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Удалить класс
+   */
+  async deleteClass(classId: number): Promise<void> {
+    try {
+      await db.delete(classes).where(eq(classes.id, classId));
+    } catch (error) {
+      console.error("[storage] Error deleting class:", error);
       throw error;
     }
   }
