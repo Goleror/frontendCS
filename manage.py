@@ -279,10 +279,44 @@ def install_dependencies() -> bool:
         return False
 
 
+def select_platform() -> Optional[str]:
+    """Показать интерактивное меню выбора платформы"""
+    platforms = [
+        ("1", "🪟 Windows", "windows"),
+        ("2", "🐧 Linux", "linux"),
+        ("3", "🍎 macOS", "macos"),
+        ("4", "🔷 WSL (Windows Subsystem for Linux)", "wsl"),
+        ("5", "🤖 Auto-detect", "auto"),
+    ]
+    
+    print(f"\n{Colors.BOLD}Выберите платформу разработки:{Colors.ENDC}\n")
+    
+    for key, text, _ in platforms:
+        print(f"  {key}) {text}")
+    
+    print()
+    choice = input(f"{Colors.BOLD}Выберите (1-5): {Colors.ENDC}").strip()
+    
+    for key, _, value in platforms:
+        if choice == key:
+            if value == "auto":
+                current_os = platform.system()
+                if current_os == "Windows":
+                    return "windows"
+                elif current_os == "Darwin":
+                    return "macos"
+                else:
+                    return "linux"
+            return value
+    
+    print_error("Неправильный выбор")
+    return None
+
+
 def start_dev_server() -> bool:
-    """Запустить dev сервер"""
+    """Запустить dev сервер с выбором платформы"""
     clear_screen()
-    print_header("ЗАПУСК DEV СЕРВЕРА")
+    print_header("🚀 ЗАПУСК DEV СЕРВЕРА")
     
     # Check dependencies first
     if not check_project_dependencies():
@@ -291,28 +325,37 @@ def start_dev_server() -> bool:
             print_error("Не удалось установить зависимости")
             return False
     
-    print_info("Сборка проекта...")
-    code, _, _ = run_command(['npm', 'run', 'build'], shell=(platform.system() == "Windows"))
-    if code != 0:
-        print_error("Ошибка при сборке проекта")
+    # Select platform
+    selected_platform = select_platform()
+    if not selected_platform:
         return False
     
-    print_success("Проект собран!")
+    current_os = platform.system()
+    if selected_platform == "windows":
+        os_name = "Windows"
+    elif selected_platform == "macos":
+        os_name = "macOS"
+    elif selected_platform == "wsl":
+        os_name = "WSL"
+    else:
+        os_name = "Linux"
+    
+    print_success(f"Выбрана платформа: {os_name}\n")
+    
     print_info("Запуск сервера на http://localhost:5000")
+    print_info("Локальная сеть: http://<ваш-ip>:5000")
     print_info("Нажмите Ctrl+C для остановки")
     print()
     
     try:
-        # Запускаем npm start напрямую (не в фоне, чтобы видеть вывод)
-        if platform.system() == "Windows":
+        # Запускаем npm dev напрямую (не в фоне, чтобы видеть вывод)
+        if current_os == "Windows":
             import subprocess
-            subprocess.Popen(['npm', 'run', 'start'], shell=True, cwd=os.getcwd())
+            subprocess.run(['npm', 'run', 'dev'], shell=True, cwd=os.getcwd())
         else:
             import subprocess
-            subprocess.Popen(['npm', 'run', 'start'], cwd=os.getcwd())
+            subprocess.run(['npm', 'run', 'dev'], cwd=os.getcwd())
         
-        print_success("Сервер запущен! Откройте http://localhost:5000 в браузере")
-        input("\nНажмите Enter для возврата в меню...")
         return True
     except KeyboardInterrupt:
         print_info("\nСервер остановлен")
@@ -348,7 +391,7 @@ def build_project() -> bool:
 
 
 def view_logs(log_type: str = "both") -> None:
-    """Просмотреть логи"""
+    """Просмотреть логи с опциями"""
     clear_screen()
     print_header("📋 ПРОСМОТР ЛОГОВ")
     
@@ -359,13 +402,15 @@ def view_logs(log_type: str = "both") -> None:
         print_error("logs директория не найдена")
         return
     
+    backend_log = logs_dir / 'backend.log'
+    frontend_log = logs_dir / 'frontend.log'
+    
+    # Show backend logs
     if log_type in ["both", "backend"]:
-        backend_log = logs_dir / 'backend.log'
         if backend_log.exists():
             print_section("BACKEND LOGS")
             with open(backend_log, 'r') as f:
                 content = f.read()
-                # Show last 50 lines
                 lines = content.split('\n')
                 for line in lines[-50:]:
                     if line.strip():
@@ -373,19 +418,21 @@ def view_logs(log_type: str = "both") -> None:
         else:
             print_warning("backend.log не найден")
     
+    # Show frontend logs
     if log_type in ["both", "frontend"]:
-        frontend_log = logs_dir / 'frontend.log'
         if frontend_log.exists():
             print_section("FRONTEND LOGS")
             with open(frontend_log, 'r') as f:
                 content = f.read()
-                # Show last 50 lines
                 lines = content.split('\n')
                 for line in lines[-50:]:
                     if line.strip():
                         print(f"{Colors.LIGHT_GREEN}{line}{Colors.ENDC}")
         else:
             print_warning("frontend.log не найден")
+    
+    if log_type == "disabled":
+        print_info("Просмотр логов отключен")
     
     print()
 
@@ -429,12 +476,13 @@ def print_menu() -> None:
     
     print(f"\n{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}")
     print(f"{Colors.BOLD}{Colors.OKBLUE}{'CYBERSHIELD PROJECT MANAGER'.center(70)}{Colors.ENDC}")
-    print(f"{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}\n")
+    print(f"{Colors.BOLD}{Colors.OKBLUE}{'='*70}{Colors.ENDC}")
+    print(f"{Colors.DARK_GRAY}{'by onevu'.center(70)}{Colors.ENDC}\n")
     
     print(f"{Colors.BOLD}Главное меню:{Colors.ENDC}\n")
     
     menu_items = [
-        ("1", "Запустить dev сервер", Colors.LIGHT_GREEN),
+        ("1", "Запустить dev сервер (с выбором платформы)", Colors.LIGHT_GREEN),
         ("2", "Собрать проект", Colors.LIGHT_CYAN),
         ("3", "Установить зависимости", Colors.LIGHT_YELLOW),
         ("4", "Проверить систему", Colors.LIGHT_BLUE),
@@ -466,11 +514,26 @@ def main():
             elif choice == "4":
                 system_check()
             elif choice == "5":
-                print("\n  1. Backend логи")
-                print("  2. Frontend логи")
-                print("  3. Оба логи\n")
-                log_choice = input(f"{Colors.BOLD}Выберите (1-3): {Colors.ENDC}").strip()
-                log_types = {"1": "backend", "2": "frontend", "3": "both"}
+                # Меню выбора типа логов
+                clear_screen()
+                print(f"\n{Colors.BOLD}{Colors.OKCYAN}Выберите тип логов:{Colors.ENDC}\n")
+                log_menu = [
+                    ("1", "📘 Backend логи"),
+                    ("2", "📗 Frontend логи"),
+                    ("3", "📚 Оба логи"),
+                    ("4", "🚫 Отключить просмотр"),
+                ]
+                for key, text in log_menu:
+                    print(f"  {key}. {text}")
+                print()
+                log_choice = input(f"{Colors.BOLD}Выберите (1-4): {Colors.ENDC}").strip()
+                
+                log_types = {
+                    "1": "backend",
+                    "2": "frontend", 
+                    "3": "both",
+                    "4": "disabled"
+                }
                 view_logs(log_types.get(log_choice, "both"))
             elif choice == "6":
                 confirm = input(f"{Colors.WARNING}Вы уверены? (y/n): {Colors.ENDC}").strip().lower()
