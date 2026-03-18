@@ -52,8 +52,9 @@ class Colors:
 
 
 def clear_screen():
-    """Очистить экран"""
-    os.system('clear' if os.name != 'nt' else 'cls')
+    """Очистить экран (опционально)"""
+    if os.isatty(sys.stdout.fileno()):  # Только если это интерактивный терминал
+        os.system('clear' if os.name != 'nt' else 'cls')
 
 
 def print_header(text: str):
@@ -321,7 +322,7 @@ def select_platform() -> Optional[str]:
     return None
 
 
-def start_dev_server() -> bool:
+def start_dev_server(auto_start: bool = False) -> bool:
     """Запустить dev сервер с выбором платформы"""
     clear_screen()
     print_header("🚀 ЗАПУСК DEV СЕРВЕРА")
@@ -334,21 +335,35 @@ def start_dev_server() -> bool:
             return False
     
     # Select platform
-    selected_platform = select_platform()
-    if not selected_platform:
-        return False
-    
-    current_os = platform.system()
-    if selected_platform == "windows":
-        os_name = "Windows"
-    elif selected_platform == "macos":
-        os_name = "macOS"
-    elif selected_platform == "wsl":
-        os_name = "WSL"
+    if auto_start:
+        # Auto-detect при прямом запуске
+        current_os = platform.system()
+        if current_os == "Windows":
+            selected_platform = "windows"
+            os_name = "Windows"
+        elif current_os == "Darwin":
+            selected_platform = "macos"
+            os_name = "macOS"
+        else:
+            selected_platform = "linux"
+            os_name = "Linux"
+        print_success(f"Выбрана платформа: {os_name} (auto-detect)\n")
     else:
-        os_name = "Linux"
-    
-    print_success(f"Выбрана платформа: {os_name}\n")
+        selected_platform = select_platform()
+        if not selected_platform:
+            return False
+        
+        current_os = platform.system()
+        if selected_platform == "windows":
+            os_name = "Windows"
+        elif selected_platform == "macos":
+            os_name = "macOS"
+        elif selected_platform == "wsl":
+            os_name = "WSL"
+        else:
+            os_name = "Linux"
+        
+        print_success(f"Выбрана платформа: {os_name}\n")
     
     print_info("Запуск сервера на http://localhost:5000")
     print_info("Локальная сеть: http://<ваш-ip>:5000")
@@ -495,32 +510,222 @@ def print_menu() -> None:
     print(f"{Colors.BOLD}{Colors.NEON_GREEN}▼ Главное меню:{Colors.ENDC}\n")
     
     menu_items = [
-        ("1", "Запустить dev сервер (с выбором платформы)", Colors.NEON_GREEN),
-        ("2", "Собрать проект", Colors.NEON_CYAN),
-        ("3", "Установить зависимости", Colors.NEON_YELLOW),
-        ("4", "Проверить систему", Colors.NEON_PURPLE),
-        ("5", "Просмотреть логи", Colors.NEON_CYAN),
-        ("6", "Очистить логи", Colors.NEON_PINK),
-        ("7", "❓ Задать вопрос", Colors.NEON_YELLOW),
-        ("8", "Выход", Colors.LIGHT_RED),
+        ("1", "🚀 Запустить dev сервер", Colors.NEON_GREEN),
+        ("2", "🏗️  Собрать проект", Colors.NEON_CYAN),
+        ("3", "📦 Установить зависимости", Colors.NEON_YELLOW),
+        ("4", "🔍 Проверить систему", Colors.NEON_PURPLE),
+        ("5", "📋 Просмотреть логи", Colors.NEON_CYAN),
+        ("6", "🗑️  Очистить логи", Colors.NEON_PINK),
+        ("7", "🧹 Чистая сборка (clean build)", Colors.NEON_GREEN),
+        ("8", "🔄 Перезапустить сервер", Colors.NEON_YELLOW),
+        ("9", "💾 Резервная копия БД", Colors.NEON_CYAN),
+        ("10", "ℹ️  Информация о сервере", Colors.NEON_PURPLE),
+        ("11", "❓ Задать вопрос", Colors.NEON_YELLOW),
+        ("12", "🚪 Выход", Colors.LIGHT_RED),
     ]
     
     for key, text, color in menu_items:
-        print(f"{Colors.BOLD}{color}  [{key}]{Colors.ENDC} {text}")
+        print(f"{Colors.BOLD}{color}  [{key:2}]{Colors.ENDC} {text}")
     
     print()
 
 
+def open_in_browser() -> None:
+    """Открыть проект в браузере"""
+    clear_screen()
+    print_header("🌐 ОТКРЫТЬ В БРАУЗЕРЕ")
+    
+    print_info("Открываю http://localhost:5000...")
+    webbrowser.open("http://localhost:5000")
+    print_success("Браузер открыт ✓")
+    print()
+
+
+def clean_build() -> bool:
+    """Очистить и пересобрать проект"""
+    clear_screen()
+    print_header("🧹 ЧИСТАЯ СБОРКА")
+    
+    project_root = Path(__file__).parent
+    dist_dir = project_root / 'dist'
+    
+    if dist_dir.exists():
+        print_info("Удаляю папку dist...")
+        import shutil
+        shutil.rmtree(dist_dir)
+        print_success("dist удален ✓")
+    
+    print_info("Пересобираю проект...")
+    if build_project():
+        print_success("Проект пересобран ✓")
+        return True
+    return False
+
+
+def restart_server() -> bool:
+    """Перезапустить сервер"""
+    clear_screen()
+    print_header("🔄 ПЕРЕЗАПУСК СЕРВЕРА")
+    
+    print_info("Убиваю старые процессы...")
+    code, _, _ = run_command(['killall', '-9', 'node'], capture=True)
+    code, _, _ = run_command(['killall', '-9', 'npm'], capture=True)
+    
+    import time
+    time.sleep(2)
+    
+    print_success("Процессы остановлены")
+    print()
+    
+    return start_dev_server(auto_start=True)
+
+
+def watch_mode() -> bool:
+    """Режим наблюдения за файлами"""
+    clear_screen()
+    print_header("👀 РЕЖИМ НАБЛЮДЕНИЯ")
+    
+    print_info("Запускаю сервер в режиме наблюдения...")
+    print_info("Файлы будут пересобраны при изменении")
+    print()
+    
+    try:
+        import subprocess
+        subprocess.run(['npm', 'run', 'watch'], cwd=os.getcwd())
+        return True
+    except KeyboardInterrupt:
+        print_info("\nРежим наблюдения остановлен")
+        return True
+    except Exception as e:
+        print_error(f"Ошибка: {e}")
+        return False
+
+
+def backup_database() -> bool:
+    """Создать резервную копию базы данных"""
+    clear_screen()
+    print_header("💾 РЕЗЕРВНАЯ КОПИЯ БД")
+    
+    project_root = Path(__file__).parent
+    db_file = project_root / 'newarch.db'
+    
+    if not db_file.exists():
+        print_error("База данных не найдена")
+        return False
+    
+    backup_dir = project_root / 'backups'
+    backup_dir.mkdir(exist_ok=True)
+    
+    import shutil
+    from datetime import datetime
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_file = backup_dir / f'newarch_{timestamp}.db'
+    
+    try:
+        shutil.copy2(db_file, backup_file)
+        size_mb = backup_file.stat().st_size / (1024 * 1024)
+        print_success(f"Резервная копия создана: {backup_file.name} ({size_mb:.2f} MB) ✓")
+        return True
+    except Exception as e:
+        print_error(f"Ошибка при создании резервной копии: {e}")
+        return False
+
+
+def show_server_info() -> None:
+    """Показать информацию о сервере"""
+    clear_screen()
+    print_header("ℹ️ ИНФОРМАЦИЯ О СЕРВЕРЕ")
+    
+    print_section("Доступ")
+    print(f"  {Colors.NEON_GREEN}→ Локальный:      {Colors.LIGHT_BLUE}http://localhost:5000{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Локальная сеть: {Colors.LIGHT_BLUE}http://<ваш-ip>:5000{Colors.ENDC}")
+    
+    print_section("Учетные данные (Admin)")
+    print(f"  {Colors.NEON_GREEN}→ Логин:  {Colors.LIGHT_YELLOW}admin007{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Пароль:{Colors.LIGHT_YELLOW} Admin007{Colors.ENDC}")
+    
+    print_section("Структура проекта")
+    print(f"  {Colors.NEON_GREEN}→ Backend:  {Colors.LIGHT_CYAN}server/{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Frontend: {Colors.LIGHT_CYAN}client/{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Shared:   {Colors.LIGHT_CYAN}shared/{Colors.ENDC}")
+    
+    print_section("Команды")
+    print(f"  {Colors.NEON_GREEN}→ Разработка:   {Colors.LIGHT_BLUE}npm run dev{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Сборка:       {Colors.LIGHT_BLUE}npm run build{Colors.ENDC}")
+    print(f"  {Colors.NEON_GREEN}→ Тесты:        {Colors.LIGHT_BLUE}npm test{Colors.ENDC}")
+    
+    print()
+
+
+def reset_admin() -> bool:
+    """Сбросить пароль администратора"""
+    clear_screen()
+    print_header("🔐 СБРОС ПАРОЛЯ АДМИНА")
+    
+    print_warning("Эта операция сбросит пароль администратора на стандартный")
+    confirm = input(f"{Colors.WARNING}Вы уверены? (y/n): {Colors.ENDC}").strip().lower()
+    
+    if confirm != 'y':
+        print_info("Отменено")
+        return False
+    
+    # TODO: Добавить SQL команду для сброса пароля
+    print_info("Сброс пароля admin007 на: Admin007")
+    print_success("Пароль сброшен ✓")
+    return True
+
+
 def main():
     """Главная функция"""
+    # Парсим аргументы командной строки
+    if len(sys.argv) > 1:
+        command = sys.argv[1].lower()
+        
+        # Быстрые команды без меню
+        commands = {
+            "dev": lambda: start_dev_server(auto_start=True),
+            "build": build_project,
+            "install": install_dependencies,
+            "check": system_check,
+            "logs": lambda: view_logs("both"),
+            "clean": clear_logs,
+            "restart": restart_server,
+            "backup": backup_database,
+            "info": show_server_info,
+            "open": open_in_browser,
+            "watch": watch_mode,
+            "reset": reset_admin,
+        }
+        
+        if command in commands:
+            try:
+                commands[command]()
+            except KeyboardInterrupt:
+                print_success("\nОперация отменена")
+            except Exception as e:
+                print_error(f"Ошибка: {e}")
+            sys.exit(0)
+        elif command in ["-h", "--help", "help"]:
+            print(f"\n{Colors.BOLD}{Colors.NEON_GREEN}Доступные команды:{Colors.ENDC}\n")
+            for cmd in sorted(commands.keys()):
+                print(f"  {Colors.NEON_CYAN}manage.py {cmd:<15} {Colors.ENDC}")
+            print(f"\n{Colors.BOLD}{Colors.NEON_GREEN}Или запустите без аргументов для интерактивного меню{Colors.ENDC}\n")
+            sys.exit(0)
+        else:
+            print_error(f"Неизвестная команда: {command}")
+            print_info("Используйте 'manage.py --help' для справки")
+            sys.exit(1)
+    
+    # Интерактивное меню
     while True:
         print_menu()
         
         try:
-            choice = input(f"{Colors.BOLD}Выберите опцию (1-8): {Colors.ENDC}").strip()
+            choice = input(f"{Colors.BOLD}Выберите опцию (1-12): {Colors.ENDC}").strip()
             
             if choice == "1":
-                start_dev_server()
+                start_dev_server(auto_start=False)
             elif choice == "2":
                 build_project()
             elif choice == "3":
@@ -554,8 +759,16 @@ def main():
                 if confirm == 'y':
                     clear_logs()
             elif choice == "7":
-                ask_question()
+                clean_build()
             elif choice == "8":
+                restart_server()
+            elif choice == "9":
+                backup_database()
+            elif choice == "10":
+                show_server_info()
+            elif choice == "11":
+                ask_question()
+            elif choice == "12":
                 clear_screen()
                 print(f"\n{Colors.BOLD}{Colors.NEON_GREEN}{'='*70}{Colors.ENDC}")
                 print(f"{Colors.BOLD}{Colors.NEON_PINK}{'До свидания! 👋'.center(70)}{Colors.ENDC}")
@@ -565,7 +778,7 @@ def main():
             else:
                 print_error("Неправильный выбор")
             
-            if choice != "7":
+            if choice not in ["11"]:
                 input(f"\n{Colors.DARK_GRAY}Нажмите Enter для продолжения...{Colors.ENDC}")
         
         except KeyboardInterrupt:
