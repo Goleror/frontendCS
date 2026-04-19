@@ -39,15 +39,38 @@ export function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/leaderboard?limit=20');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setEntries(data);
+      const leaderboardData: LeaderboardEntry[] = [];
+      const users = JSON.parse(localStorage.getItem('cybershield_users') || '[]');
+
+      // Загружаем прогресс каждого пользователя
+      users.forEach((user: any, index: number) => {
+        const progressKey = `cybershield_progress_${user.username}`;
+        const progressStr = localStorage.getItem(progressKey);
+        if (progressStr) {
+          const progress = JSON.parse(progressStr);
+          leaderboardData.push({
+            id: index,
+            playerName: user.username,
+            completionTimeMs: 0, // Не отслеживаем время в локальной версии
+            commandCount: progress.total_commands_executed || 0,
+            errorCount: progress.total_errors || 0,
+            achievementCount: Array.isArray(progress.unlocked_achievements) 
+              ? progress.unlocked_achievements.length 
+              : 0,
+            createdAt: progress.updated_at || new Date().toISOString()
+          });
+        }
+      });
+
+      // Сортируем по счету (больше команд = выше)
+      leaderboardData.sort((a, b) => b.commandCount - a.commandCount);
+      setEntries(leaderboardData);
     } catch (err) {
+      console.error('Error loading leaderboard:', err);
       setError('Не удалось загрузить таблицу лидеров');
     } finally {
       setLoading(false);

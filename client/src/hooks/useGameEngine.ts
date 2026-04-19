@@ -382,25 +382,43 @@ function normalizePath(path: string): string {
 }
 
 export const useGameEngine = create<GameState>(
-  (set, get) => ({
-      fileSystem: deepClone(INITIAL_FILESYSTEM),
-      currentPath: '/home/user',
-      processes: deepClone(INITIAL_PROCESSES),
-      terminalHistory: [
+  (set, get) => {
+    // Загружаем сохранённое состояние
+    let savedState = null;
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (user) {
+        const { username } = JSON.parse(user);
+        const gameStateKey = `cybershield_gamestate_${username}`;
+        const saved = localStorage.getItem(gameStateKey);
+        if (saved) {
+          savedState = JSON.parse(saved);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load saved game state:', e);
+    }
+
+    return {
+      fileSystem: savedState?.fileSystem || deepClone(INITIAL_FILESYSTEM),
+      currentPath: savedState?.currentPath || '/home/user',
+      processes: savedState?.processes || deepClone(INITIAL_PROCESSES),
+      terminalHistory: savedState?.terminalHistory || [
         { id: 0, type: 'system', content: '╔══════════════════════════════════════════════════════════════╗' },
         { id: 1, type: 'system', content: '║           CYBERSHIELD v2.0 - TERMINAL INTERFACE             ║' },
         { id: 2, type: 'system', content: '║              Система защиты активирована                    ║' },
         { id: 3, type: 'system', content: '╚══════════════════════════════════════════════════════════════╝' },
         { id: 4, type: 'output', content: 'Введите "help" для списка команд.' },
       ],
-      lineCounter: 5,
-      currentMission: 1,
-      missions: deepClone(INITIAL_MISSIONS),
-      gameCompleted: false,
-      gameStartTime: Date.now(),
-      commandCount: 0,
-      errorCount: 0,
+      lineCounter: savedState?.lineCounter || 5,
+      currentMission: savedState?.currentMission || 1,
+      missions: savedState?.missions || deepClone(INITIAL_MISSIONS),
+      gameCompleted: savedState?.gameCompleted || false,
+      gameStartTime: savedState?.gameStartTime || Date.now(),
+      commandCount: savedState?.commandCount || 0,
+      errorCount: savedState?.errorCount || 0,
 
+  
   getGameStats: () => {
     const state = get();
     return {
@@ -411,25 +429,78 @@ export const useGameEngine = create<GameState>(
   },
 
   addTerminalLine: (type, content) => {
-    set((state) => ({
-      terminalHistory: [...state.terminalHistory, { id: state.lineCounter, type, content }],
-      lineCounter: state.lineCounter + 1,
-      errorCount: type === 'error' ? state.errorCount + 1 : state.errorCount
-    }));
+    set((state) => {
+      const newState = {
+        terminalHistory: [...state.terminalHistory, { id: state.lineCounter, type, content }],
+        lineCounter: state.lineCounter + 1,
+        errorCount: type === 'error' ? state.errorCount + 1 : state.errorCount
+      };
+      
+      // Сохранить в localStorage
+      try {
+        const user = localStorage.getItem('cybershield_user');
+        if (user) {
+          const { username } = JSON.parse(user);
+          const gameStateKey = `cybershield_gamestate_${username}`;
+          localStorage.setItem(gameStateKey, JSON.stringify({
+            ...state,
+            ...newState
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to save game state:', e);
+      }
+      
+      return newState;
+    });
   },
 
   clearTerminal: () => {
-    set({ terminalHistory: [], lineCounter: 0 });
+    set((state) => {
+      const newState = { terminalHistory: [], lineCounter: 0 };
+      try {
+        const user = localStorage.getItem('cybershield_user');
+        if (user) {
+          const { username } = JSON.parse(user);
+          const gameStateKey = `cybershield_gamestate_${username}`;
+          localStorage.setItem(gameStateKey, JSON.stringify({
+            ...state,
+            ...newState
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to save game state:', e);
+      }
+      return newState;
+    });
   },
 
   setCurrentMission: (missionId) => {
-    set((state) => ({
-      currentMission: missionId,
-      missions: state.missions.map(m => ({
-        ...m,
-        active: m.id === missionId
-      }))
-    }));
+    set((state) => {
+      const newState = {
+        currentMission: missionId,
+        missions: state.missions.map(m => ({
+          ...m,
+          active: m.id === missionId
+        }))
+      };
+      
+      try {
+        const user = localStorage.getItem('cybershield_user');
+        if (user) {
+          const { username } = JSON.parse(user);
+          const gameStateKey = `cybershield_gamestate_${username}`;
+          localStorage.setItem(gameStateKey, JSON.stringify({
+            ...state,
+            ...newState
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to save game state:', e);
+      }
+      
+      return newState;
+    });
   },
 
   checkMissionCompletion: () => {
@@ -508,11 +579,35 @@ export const useGameEngine = create<GameState>(
       const nextMission = currentMission < TOTAL_MISSIONS ? currentMission + 1 : currentMission;
       const isGameComplete = currentMission === TOTAL_MISSIONS;
       
-      set({
+      const newState = {
         missions: updatedMissions,
         currentMission: nextMission,
         gameCompleted: isGameComplete
-      });
+      };
+      
+      // Сохранить в localStorage
+      try {
+        const user = localStorage.getItem('cybershield_user');
+        if (user) {
+          const { username } = JSON.parse(user);
+          const gameStateKey = `cybershield_gamestate_${username}`;
+          localStorage.setItem(gameStateKey, JSON.stringify({
+            ...state,
+            ...newState,
+            fileSystem: state.fileSystem,
+            processes: state.processes,
+            terminalHistory: state.terminalHistory,
+            lineCounter: state.lineCounter,
+            errorCount: state.errorCount,
+            commandCount: state.commandCount,
+            gameStartTime: state.gameStartTime
+          }));
+        }
+      } catch (e) {
+        console.error('Failed to save game state:', e);
+      }
+      
+      set(newState);
       
       get().addTerminalLine('success', `═══ МИССИЯ ${currentMission} ВЫПОЛНЕНА! ═══`);
       
@@ -528,6 +623,18 @@ export const useGameEngine = create<GameState>(
   },
 
   resetGame: () => {
+    // Очистить localStorage
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (user) {
+        const { username } = JSON.parse(user);
+        const gameStateKey = `cybershield_gamestate_${username}`;
+        localStorage.removeItem(gameStateKey);
+      }
+    } catch (e) {
+      console.error('Failed to clear game state from localStorage:', e);
+    }
+    
     set({
       fileSystem: deepClone(INITIAL_FILESYSTEM),
       currentPath: '/home/user',
@@ -633,6 +740,21 @@ export const useGameEngine = create<GameState>(
       case 'cd': {
         if (!args[0]) {
           set({ currentPath: '/home/user' });
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                currentPath: '/home/user'
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
           return;
         }
         
@@ -650,6 +772,22 @@ export const useGameEngine = create<GameState>(
         }
         
         set({ currentPath: targetPath || '/' });
+        
+        // Сохранить в localStorage
+        try {
+          const user = localStorage.getItem('cybershield_user');
+          if (user) {
+            const { username } = JSON.parse(user);
+            const gameStateKey = `cybershield_gamestate_${username}`;
+            const currentState = get();
+            localStorage.setItem(gameStateKey, JSON.stringify({
+              ...currentState,
+              currentPath: targetPath || '/'
+            }));
+          }
+        } catch (e) {
+          console.error('Failed to save game state:', e);
+        }
         break;
       }
       
@@ -709,6 +847,23 @@ export const useGameEngine = create<GameState>(
         if (parentNode && parentNode.children) {
           delete parentNode.children[fileName];
           set({ fileSystem: newFs });
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                fileSystem: newFs
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
+          
           state.addTerminalLine('success', `Файл '${args[0]}' удалён`);
           state.checkMissionCompletion();
         }
@@ -747,6 +902,23 @@ export const useGameEngine = create<GameState>(
             permissions: 'rw'
           };
           set({ fileSystem: newFs });
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                fileSystem: newFs
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
+          
           state.addTerminalLine('success', `Файл '${args[0]}' создан`);
         }
         break;
@@ -788,6 +960,23 @@ export const useGameEngine = create<GameState>(
             permissions: 'rw'
           };
           set({ fileSystem: newFs });
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                fileSystem: newFs
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
+          
           state.addTerminalLine('success', `Записано в '${fileName}'`);
           state.checkMissionCompletion();
         }
@@ -935,7 +1124,25 @@ export const useGameEngine = create<GameState>(
             return m;
           });
           
-          set({ missions: updatedMissions, currentMission: 4 });
+          const newState = { missions: updatedMissions, currentMission: 4 };
+          set(newState);
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                ...newState
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
+          
           state.addTerminalLine('success', '═══ МИССИЯ 3 ВЫПОЛНЕНА! ═══');
           state.addTerminalLine('system', `Следующая миссия: ${updatedMissions[3]?.title}`);
         } else if (state.currentMission === 3) {
@@ -947,7 +1154,25 @@ export const useGameEngine = create<GameState>(
             return m;
           });
           
-          set({ missions: updatedMissions, currentMission: 7 });
+          const newState = { missions: updatedMissions, currentMission: 7 };
+          set(newState);
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const gameStateKey = `cybershield_gamestate_${username}`;
+              const currentState = get();
+              localStorage.setItem(gameStateKey, JSON.stringify({
+                ...currentState,
+                ...newState
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save game state:', e);
+          }
+          
           state.addTerminalLine('success', '═══ МИССИЯ 6 ВЫПОЛНЕНА! ═══');
           state.addTerminalLine('system', `Следующая миссия: ${updatedMissions[6]?.title}`);
         } else if (state.currentMission === 6) {
@@ -987,5 +1212,6 @@ export const useGameEngine = create<GameState>(
       errorCount: errors
     });
   }
-    })
-);
+};
+});
+

@@ -26,11 +26,11 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
+  const checkAuth = () => {
     try {
-      const response = await fetch('/api/auth/me');
-      if (response.ok) {
-        const user = await response.json();
+      const storedUser = localStorage.getItem('cybershield_user');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
         onAuthSuccess(user.username);
       }
     } catch (err) {
@@ -38,7 +38,7 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -70,47 +70,52 @@ export function AuthPage({ onAuthSuccess }: AuthProps) {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body: any = { username: username.trim(), password };
-      
-      if (!isLogin) {
-        body.role = role;
-        if (role === 'student') {
-          body.classCode = classCode.trim();
-        }
-      }
+      const trimmedUsername = username.trim();
+      const users = JSON.parse(localStorage.getItem('cybershield_users') || '[]');
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (response.ok) {
-        const user = await response.json();
-        if (!isLogin && user.role === 'teacher' && user.class_code) {
-          // Учитель зарегистрирован, показываем код и кнопку "Далее"
-          setGeneratedClassCode(user.class_code);
-          setRegisteredUsername(user.username);
-          setSuccess(`Регистрация успешна! Ваш код класса: ${user.class_code}`);
-          setIsRegistrationComplete(true);
-        } else if (!isLogin && user.role === 'student') {
-          // Студент зарегистрирован, переходим в игру
-          setSuccess(`Регистрация успешна!`);
-          setRegisteredUsername(user.username);
-          setIsRegistrationComplete(true);
-          setTimeout(() => onAuthSuccess(user.username), 1000);
-        } else if (isLogin) {
-          // Обычный вход
-          setSuccess(`${isLogin ? 'Вход' : 'Регистрация'} успешен!`);
-          setTimeout(() => onAuthSuccess(user.username), 1000);
+      if (isLogin) {
+        // Проверить, существует ли пользователь с таким паролем
+        const user = users.find((u: any) => u.username === trimmedUsername && u.password === password);
+        if (user) {
+          // Успешный вход
+          const currentUser = { username: trimmedUsername, role: user.role };
+          localStorage.setItem('cybershield_user', JSON.stringify(currentUser));
+          setSuccess('Добро пожаловать!');
+          setTimeout(() => {
+            onAuthSuccess(trimmedUsername);
+          }, 500);
+        } else {
+          setError('Неверное имя пользователя или пароль');
         }
       } else {
-        const data = await response.json();
-        setError(data.error || 'Ошибка аутентификации');
+        // Регистрация
+        const existingUser = users.find((u: any) => u.username === trimmedUsername);
+        if (existingUser) {
+          setError('Этот пользователь уже существует');
+        } else {
+          // Создать нового пользователя
+          const newUser = {
+            username: trimmedUsername,
+            password: password,
+            role: role,
+            classCode: role === 'student' ? classCode.trim() : null,
+            createdAt: new Date().toISOString()
+          };
+          users.push(newUser);
+          localStorage.setItem('cybershield_users', JSON.stringify(users));
+
+          // Автоматически войти
+          const currentUser = { username: trimmedUsername, role: role };
+          localStorage.setItem('cybershield_user', JSON.stringify(currentUser));
+          setSuccess(`Регистрация успешна!`);
+          setRegisteredUsername(trimmedUsername);
+          setTimeout(() => {
+            onAuthSuccess(trimmedUsername);
+          }, 500);
+        }
       }
     } catch (err) {
-      setError('Ошибка подключения к серверу');
+      setError('Ошибка обработки запроса');
       console.error(err);
     } finally {
       setLoading(false);
