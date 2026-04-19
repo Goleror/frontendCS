@@ -660,8 +660,25 @@ export const useGameEngine = create<GameState>(
     const state = get();
     const { currentPath, fileSystem, processes } = state;
     
-    state.addTerminalLine('input', `$ ${command}`);
-    set((s) => ({ commandCount: s.commandCount + 1 }));
+    // Добавить команду в историю И увеличить счетчик в одном set()
+    set((s) => ({
+      terminalHistory: [...s.terminalHistory, { id: s.lineCounter, type: 'input', content: `$ ${command}` }],
+      lineCounter: s.lineCounter + 1,
+      commandCount: s.commandCount + 1
+    }));
+    
+    // Сохранить в localStorage
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (user) {
+        const { username } = JSON.parse(user);
+        const gameStateKey = `cybershield_gamestate_${username}`;
+        const currentState = get();
+        localStorage.setItem(gameStateKey, JSON.stringify(currentState));
+      }
+    } catch (e) {
+      console.error('Failed to save game state:', e);
+    }
     
     const trimmedCmd = command.trim();
     if (!trimmedCmd) return;
