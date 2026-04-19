@@ -129,12 +129,13 @@ export const useAudio = create<AudioState>((set, get) => {
     },
     
     playTyping: () => {
-    const { typingSound, isMuted } = get();
-    if (typingSound && !isMuted) {
-      const soundClone = typingSound.cloneNode() as HTMLAudioElement;
-      soundClone.volume = 0.05;
-      soundClone.playbackRate = 1.5;
-      soundClone.play().catch(() => {});
+      const { typingSound, isMuted } = get();
+      if (typingSound && !isMuted) {
+        const soundClone = typingSound.cloneNode() as HTMLAudioElement;
+        soundClone.volume = 0.05;
+        soundClone.playbackRate = 1.5;
+        soundClone.play().catch(() => {});
+      }
     }
-  }
-}));
+  };
+});
