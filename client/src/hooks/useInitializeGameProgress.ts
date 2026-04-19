@@ -21,13 +21,13 @@ interface UserProgress {
  * НЕ использует localStorage
  */
 export function useInitializeGameProgress() {
-  const gameEngine = useGameEngine();
-  const achievementsStore = useAchievements();
-
   /**
    * Загружает прогресс с сервера и применяет его
    */
   const loadProgressFromServer = useCallback(async () => {
+    // Get fresh reference to avoid circular dependency
+    const engine = useGameEngine.getState();
+    
     try {
       console.log('[useInitializeGameProgress] Загружаю прогресс с сервера...');
       
@@ -38,7 +38,7 @@ export function useInitializeGameProgress() {
       if (response.status === 404) {
         console.log('[useInitializeGameProgress] Прогресс не найден - начинаем с нуля');
         // Это нормально - новый пользователь
-        gameEngine.resetGame();
+        engine.resetGame();
         return null;
       }
 
@@ -56,22 +56,26 @@ export function useInitializeGameProgress() {
     } catch (error) {
       console.error('[useInitializeGameProgress] Ошибка при загрузке прогресса:', error);
       // В случае ошибки - начинаем с нуля
-      gameEngine.resetGame();
+      engine.resetGame();
       return null;
     }
-  }, [gameEngine]);
+  }, []);
 
   /**
    * Применяет загруженный прогресс к игре
    */
   const applyProgressToGame = useCallback((progress: UserProgress) => {
+    // Get fresh reference to avoid circular dependency
+    const engine = useGameEngine.getState();
+    const achievements = useAchievements.getState();
+    
     try {
       // Восстанавливаем достижения
       if (progress.unlocked_achievements) {
         try {
           const unlockedIds = JSON.parse(progress.unlocked_achievements);
           console.log('[useInitializeGameProgress] Применяю достижения:', unlockedIds);
-          achievementsStore.applyUnlockedAchievements(unlockedIds);
+          achievements.applyUnlockedAchievements(unlockedIds);
         } catch (e) {
           console.warn('[useInitializeGameProgress] Ошибка парсинга достижений:', e);
         }
@@ -84,7 +88,7 @@ export function useInitializeGameProgress() {
         errors: progress.total_errors,
       });
 
-      gameEngine.applyCommandStats(
+      engine.applyCommandStats(
         progress.total_commands_executed,
         progress.total_errors
       );
@@ -93,7 +97,7 @@ export function useInitializeGameProgress() {
     } catch (error) {
       console.error('[useInitializeGameProgress] Ошибка при применении прогресса:', error);
     }
-  }, [gameEngine, achievementsStore]);
+  }, []);
 
   return {
     loadProgressFromServer,

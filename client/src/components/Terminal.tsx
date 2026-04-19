@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
 import { useGameEngine } from '@/hooks/useGameEngine';
 import { useAudio } from '@/lib/stores/useAudio';
+import { useLocalStorageGame } from '@/hooks/useLocalStorageGame';
 
 export function Terminal() {
   const [inputValue, setInputValue] = useState('');
@@ -11,10 +12,17 @@ export function Terminal() {
   
   const { terminalHistory, currentPath, executeCommand } = useGameEngine();
   const { playTyping, playHit, initializeAudio, startBackgroundMusic } = useAudio();
+  const { loadCommandHistory, saveCommandHistory } = useLocalStorageGame();
   
   useEffect(() => {
     initializeAudio();
   }, [initializeAudio]);
+  
+  // Загружаем историю команд при монтировании компонента
+  useEffect(() => {
+    const history = loadCommandHistory();
+    setCommandHistory(history);
+  }, [loadCommandHistory]);
   
   useEffect(() => {
     if (scrollRef.current) {
@@ -40,7 +48,9 @@ export function Terminal() {
         playHit();
         startBackgroundMusic();
         executeCommand(cmd);
-        setCommandHistory(prev => [...prev, cmd]);
+        const newHistory = [...commandHistory, cmd];
+        setCommandHistory(newHistory);
+        saveCommandHistory(newHistory); // Сохраняем в localStorage
         setHistoryIndex(-1);
       }
       setInputValue('');

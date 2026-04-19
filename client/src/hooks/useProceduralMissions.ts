@@ -120,10 +120,34 @@ function generateMultiStep(id: string): ProceduralMission {
 }
 
 export const useProceduralMissions = create<ProceduralMissionState>(
-  (set, get) => ({
-      missions: [],
-      currentMission: null,
-      completedCount: 0,
+  (set, get) => {
+    // Загружаем сохраненное состояние из localStorage
+    let initialMissions = [];
+    let initialCurrentMission = null;
+    let initialCompletedCount = 0;
+    
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (user) {
+        const { username } = JSON.parse(user);
+        const proceduralsKey = `cybershield_procedurals_${username}`;
+        const saved = localStorage.getItem(proceduralsKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          initialMissions = parsed.missions || [];
+          initialCurrentMission = parsed.currentMission || null;
+          initialCompletedCount = parsed.completedCount || 0;
+          console.log('[useProceduralMissions] Loaded from localStorage:', { initialMissions, initialCurrentMission, initialCompletedCount });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load procedural missions from localStorage:', e);
+    }
+    
+    return {
+      missions: initialMissions,
+      currentMission: initialCurrentMission,
+      completedCount: initialCompletedCount,
       
       generateMission: () => {
         const id = `proc_${Date.now()}`;
@@ -146,22 +170,62 @@ export const useProceduralMissions = create<ProceduralMissionState>(
           mission = generateFindAndReport(id, difficulty);
         }
         
-        set(state => ({
-          missions: [...state.missions, mission],
-          currentMission: mission
-        }));
+        set(state => {
+          const newState = {
+            missions: [...state.missions, mission],
+            currentMission: mission
+          };
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const proceduralsKey = `cybershield_procedurals_${username}`;
+              localStorage.setItem(proceduralsKey, JSON.stringify({
+                missions: newState.missions,
+                currentMission: newState.currentMission,
+                completedCount: state.completedCount
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save procedural missions to localStorage:', e);
+          }
+          
+          return newState;
+        });
         
         return mission;
       },
       
       completeMission: (missionId: string) => {
-        set(state => ({
-          missions: state.missions.map(m =>
-            m.id === missionId ? { ...m, completed: true } : m
-          ),
-          currentMission: null,
-          completedCount: state.completedCount + 1
-        }));
+        set(state => {
+          const newState = {
+            missions: state.missions.map(m =>
+              m.id === missionId ? { ...m, completed: true } : m
+            ),
+            currentMission: null,
+            completedCount: state.completedCount + 1
+          };
+          
+          // Сохранить в localStorage
+          try {
+            const user = localStorage.getItem('cybershield_user');
+            if (user) {
+              const { username } = JSON.parse(user);
+              const proceduralsKey = `cybershield_procedurals_${username}`;
+              localStorage.setItem(proceduralsKey, JSON.stringify({
+                missions: newState.missions,
+                currentMission: newState.currentMission,
+                completedCount: newState.completedCount
+              }));
+            }
+          } catch (e) {
+            console.error('Failed to save procedural missions to localStorage:', e);
+          }
+          
+          return newState;
+        });
       },
       
       resetMissions: () => {
@@ -170,6 +234,19 @@ export const useProceduralMissions = create<ProceduralMissionState>(
           currentMission: null,
           completedCount: 0
         });
+        
+        // Очистить из localStorage
+        try {
+          const user = localStorage.getItem('cybershield_user');
+          if (user) {
+            const { username } = JSON.parse(user);
+            const proceduralsKey = `cybershield_procedurals_${username}`;
+            localStorage.removeItem(proceduralsKey);
+          }
+        } catch (e) {
+          console.error('Failed to clear procedural missions from localStorage:', e);
+        }
       }
-    })
+    };
+  }
 );

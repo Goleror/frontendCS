@@ -18,6 +18,11 @@ export interface UserProgress {
 /**
  * Хук для синхронизации прогресса с localStorage
  * Загружает прогресс при входе в игру и сохраняет при завершении миссий
+ * 
+ * Сохраняет:
+ * - Статистику (очки, миссии, команды, ошибки)
+ * - Открытые достижения
+ * - Состояние игры
  */
 export const useProgressSync = () => {
   const gameEngine = useGameEngine();
@@ -27,16 +32,36 @@ export const useProgressSync = () => {
    * Получает ключ прогресса для текущего пользователя
    */
   const getProgressKey = useCallback(() => {
-    const user = localStorage.getItem('cybershield_user');
-    if (!user) return null;
-    const { username } = JSON.parse(user);
-    return `cybershield_progress_${username}`;
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (!user) return null;
+      const { username } = JSON.parse(user);
+      return `cybershield_progress_${username}`;
+    } catch (e) {
+      console.error('[useProgressSync] Error getting progress key:', e);
+      return null;
+    }
+  }, []);
+
+  /**
+   * Получает общий ключ данных игры для текущего пользователя
+   */
+  const getGameDataKey = useCallback(() => {
+    try {
+      const user = localStorage.getItem('cybershield_user');
+      if (!user) return null;
+      const { username } = JSON.parse(user);
+      return `cybershield_game_${username}_data`;
+    } catch (e) {
+      console.error('[useProgressSync] Error getting game data key:', e);
+      return null;
+    }
   }, []);
 
   /**
    * Загружает прогресс пользователя из localStorage
    */
-  const loadProgress = useCallback(() => {
+  const loadProgress = useCallback((): UserProgress | null => {
     try {
       const key = getProgressKey();
       if (!key) {
@@ -76,16 +101,29 @@ export const useProgressSync = () => {
         achievementsStore.applyUnlockedAchievements?.(unlockedIds);
       }
 
+      // Восстанавливаем статистику команд и ошибок, если есть
+      if (progress.total_commands_executed !== undefined || progress.total_errors !== undefined) {
+        gameEngine.applyCommandStats?.(
+          progress.total_commands_executed || 0,
+          progress.total_errors || 0
+        );
+      }
+
+      // Восстанавливаем завершенные миссии
+      if (progress.total_missions_completed !== undefined && progress.total_missions_completed > 0) {
+        gameEngine.applyCompletedMissions?.(progress.total_missions_completed);
+      }
+
       console.log('[useProgressSync] Progress applied to game state');
     } catch (error) {
       console.error('[useProgressSync] Error applying progress:', error);
     }
-  }, [achievementsStore]);
+  }, [achievementsStore, gameEngine]);
 
   /**
    * Сохраняет прогресс в localStorage
    */
-  const saveProgress = useCallback((data: any) => {
+  const saveProgress = useCallback((data: Partial<UserProgress>) => {
     try {
       const key = getProgressKey();
       if (!key) {
@@ -183,11 +221,96 @@ export const useProgressSync = () => {
     }
   }, [getProgressKey]);
 
+  /**
+   * Сохраняет полное состояние игры (терминал, миссии, статистика)
+   */
+  const saveFullGameState = useCallback(() => {
+    try {
+      const gameDataKey = getGameDataKey();
+      if (!gameDataKey) {
+        console.warn('[useProgressSync] No user logged in');
+        return false;
+      }
+
+      const missionsCompleted = gameEngine.missions.filter(m => m.completed).length;
+      const achievements = achievementsStore.achievements || [];
+      const unlockedAchievementIds = achievements
+        .filter((a: any) => a.unlocked)
+        .map((a: any) => a.id);
+
+      const gameState = {
+        total_score: missionsCompleted * 100,
+        total_missions_completed: missionsCompleted,
+        total_commands_executed: gameEngine.commandCount || 0,
+        total_errors: gameEngine.errorCount || 0,
+        unlocked_achievements: unlockedAchievementIds,
+        gameCompleted: gameEngine.gameCompleted || false,
+        completionTime: gameEngine.gameStartTime ? Date.now() - gameEngine.gameStartTime : 0,
+        saved_at: new Date().toISOString()
+      };
+
+      localStorage.setItem(gameDataKey, JSON.stringify(gameState));
+      console.log('[useProgressSync] Full game state saved:', gameState);
+      return true;
+    } catch (error) {
+      console.error('[useProgressSync] Error saving full game state:', error);
+      return false;
+    }
+  }, [gameEngine, achievementsStore, getGameDataKey]);
+
+  /**
+   * Загружает полное состояние игры из localStorage
+   */
+  const loadFullGameState = useCallback(() => {
+    try {
+      const gameDataKey = getGameDataKey();
+      if (!gameDataKey) {
+        console.log('[useProgressSync] No user logged in');
+        return null;
+      }
+
+      const savedState = localStorage.getItem(gameDataKey);
+      if (!savedState) {
+        console.log('[useProgressSync] No full game state found');
+        return null;
+      }
+
+      const state = JSON.parse(savedState);
+      console.log('[useProgressSync] Full game state loaded:', state);
+      return state;
+    } catch (error) {
+      console.error('[useProgressSync] Error loading full game state:', error);
+      return null;
+    }
+  }, [getGameDataKey]);
+
+  /**
+   * Очищает все данные прогресса
+   */
+  const clearProgress = useCallback(() => {
+    try {
+      const progressKey = getProgressKey();
+      const gameDataKey = getGameDataKey();
+      
+      if (progressKey) localStorage.removeItem(progressKey);
+      if (gameDataKey) localStorage.removeItem(gameDataKey);
+      
+      console.log('[useProgressSync] Progress cleared');
+      return true;
+    } catch (error) {
+      console.error('[useProgressSync] Error clearing progress:', error);
+      return false;
+    }
+  }, [getProgressKey, getGameDataKey]);
+
   return {
     loadProgress,
     applyLoadedProgress,
     saveProgress,
     saveMissionProgress,
     saveAchievement,
+    saveFullGameState,
+    loadFullGameState,
+    clearProgress,
   };
 };
